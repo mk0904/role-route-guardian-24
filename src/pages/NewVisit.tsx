@@ -366,6 +366,7 @@ const NewVisit = () => {
                   name="leadersAbusiveLanguage"
                   value={leadersAbusiveLanguage}
                   onChange={(value) => setLeadersAbusiveLanguage(value)}
+                  inverseColors={true}
                 />
               </div>
 
