@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,18 +32,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Save, Check, X } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -98,7 +93,6 @@ interface EditVisitModalProps {
 
 const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVisitModalProps) => {
   const [branches, setBranches] = useState<Branch[]>([]);
-  const [activeTab, setActiveTab] = useState("general");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   
@@ -213,14 +207,10 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit((data) => onSubmit(data, "draft"))}>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-3 mb-6">
-                <TabsTrigger value="general">General Info</TabsTrigger>
-                <TabsTrigger value="metrics">Metrics & Data</TabsTrigger>
-                <TabsTrigger value="qualitative">Qualitative Assessment</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="general" className="space-y-4">
+            <div className="space-y-4">
+              {/* General Info Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">General Information</h3>
                 <FormField
                   control={form.control}
                   name="branch_id"
@@ -280,6 +270,7 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                               date > new Date() || date < new Date("2023-01-01")
                             }
                             initialFocus
+                            className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
@@ -305,9 +296,11 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                     </FormItem>
                   )}
                 />
-              </TabsContent>
+              </div>
               
-              <TabsContent value="metrics" className="space-y-4">
+              {/* Metrics & Data Section */}
+              <div className="border-t pt-4 mt-6 space-y-4">
+                <h3 className="text-lg font-medium">Metrics & Data</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -496,9 +489,11 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                     />
                   </div>
                 </div>
-              </TabsContent>
+              </div>
               
-              <TabsContent value="qualitative" className="space-y-4">
+              {/* Qualitative Assessment Section */}
+              <div className="border-t pt-4 mt-6 space-y-4">
+                <h3 className="text-lg font-medium">Qualitative Assessment</h3>
                 <div className="grid grid-cols-1 gap-4">
                   <FormField
                     control={form.control}
@@ -668,19 +663,19 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                     )}
                   />
                 </div>
-              </TabsContent>
-            </Tabs>
+              </div>
+            </div>
             
             <DialogFooter className="mt-6 gap-2">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                <X className="h-4 w-4 mr-1" /> Cancel
               </Button>
               <Button 
                 type="submit" 
                 variant="secondary"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Saving..." : "Save as Draft"}
+                <Save className="h-4 w-4 mr-1" /> {isSubmitting ? "Saving..." : "Save as Draft"}
               </Button>
               <Button 
                 type="button" 
@@ -694,7 +689,7 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                   }
                 }}
               >
-                {isSubmitting ? "Submitting..." : "Submit Report"}
+                <Check className="h-4 w-4 mr-1" /> {isSubmitting ? "Submitting..." : "Submit Report"}
               </Button>
             </DialogFooter>
           </form>

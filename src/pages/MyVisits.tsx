@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
-import { Check, Clock, Edit, Eye } from "lucide-react";
+import { Check, Clock, Edit, Eye, Save } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 import { Button } from "@/components/ui/button";
