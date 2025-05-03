@@ -89,7 +89,7 @@ const MyVisits = () => {
       case "submitted":
         return <Badge className="bg-blue-100 text-blue-800">
           <Eye className="h-3 w-3 mr-1" />
-          submitted
+          Submitted
         </Badge>;
       case "approved":
         return <Badge className="bg-green-100 text-green-800">
@@ -193,7 +193,7 @@ const MyVisits = () => {
           setEditModalOpen(false);
           setSelectedEditVisit(null);
         }}
-        visitData={selectedEditVisit as any}
+        visitData={selectedEditVisit}
         onUpdateSuccess={fetchVisits}
       />
     </div>
