@@ -92,7 +92,7 @@ const QualitativeHeatmap = ({
     );
   }
 
-  // All possible response values
+  // All possible response values - Yes/No for binary questions
   const responseColumns = ["Yes", "No"];
 
   return (

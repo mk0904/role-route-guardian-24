@@ -36,8 +36,9 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, Save, Check, X } from "lucide-react";
+import { Calendar as CalendarIcon, Save, Check, X, ThumbsUp, ThumbsDown } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -162,12 +163,16 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
     setIsSubmitting(true);
     
     try {
+      // Fix the date bug by preserving the date object as is
+      // Instead of using toISOString() which can cause timezone issues, we use the form's exact date value
+      const visitDate = data.visit_date;
+      
       const { error } = await supabase
         .from("branch_visits")
         .update({
           ...data,
           status,
-          visit_date: data.visit_date.toISOString(),
+          visit_date: `${visitDate.getFullYear()}-${String(visitDate.getMonth() + 1).padStart(2, '0')}-${String(visitDate.getDate()).padStart(2, '0')}`,
           updated_at: new Date().toISOString(),
         })
         .eq("id", visitData.id);
@@ -192,6 +197,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Helper to handle focus on input field (clear 0 values)
+  const handleNumberInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
     }
   };
 
@@ -298,38 +310,67 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                 />
               </div>
               
+              {/* HR Connect Session Details - Only show if hr_connect_session is true */}
+              {form.watch("hr_connect_session") && (
+                <div className="border-t pt-4 mt-4 space-y-4">
+                  <h3 className="text-lg font-medium">HR Connect Session Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="total_employees_invited"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Total Employees Invited</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              {...field} 
+                              value={field.value === 0 ? "" : field.value}
+                              onFocus={handleNumberInputFocus}
+                              placeholder="0"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="total_participants"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Total Participants</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              {...field} 
+                              value={field.value === 0 ? "" : field.value}
+                              onFocus={handleNumberInputFocus}
+                              placeholder="0"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div>
+                      <FormLabel>Coverage Percentage</FormLabel>
+                      <div className="h-10 flex items-center justify-center rounded-md border bg-muted/50 px-3">
+                        {form.watch("total_employees_invited") > 0 
+                          ? Math.round((form.watch("total_participants") / form.watch("total_employees_invited")) * 100) 
+                          : 0}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {/* Metrics & Data Section */}
               <div className="border-t pt-4 mt-6 space-y-4">
                 <h3 className="text-lg font-medium">Metrics & Data</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="total_employees_invited"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Total Employees Invited</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="total_participants"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Total Participants</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
                   <FormField
                     control={form.control}
                     name="manning_percentage"
@@ -337,7 +378,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                       <FormItem>
                         <FormLabel>Manning Percentage (%)</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            value={field.value === 0 ? "" : field.value}
+                            onFocus={handleNumberInputFocus}
+                            placeholder="0"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -351,7 +398,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                       <FormItem>
                         <FormLabel>Attrition Percentage (%)</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            value={field.value === 0 ? "" : field.value}
+                            onFocus={handleNumberInputFocus}
+                            placeholder="0"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -365,7 +418,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                       <FormItem>
                         <FormLabel>Non-Vendor Percentage (%)</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            value={field.value === 0 ? "" : field.value}
+                            onFocus={handleNumberInputFocus}
+                            placeholder="0"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -402,7 +461,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                       <FormItem>
                         <FormLabel>ER Percentage (%)</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            value={field.value === 0 ? "" : field.value}
+                            onFocus={handleNumberInputFocus}
+                            placeholder="0"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -416,7 +481,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                       <FormItem>
                         <FormLabel>CWT Cases</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            value={field.value === 0 ? "" : field.value}
+                            onFocus={handleNumberInputFocus}
+                            placeholder="0"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -434,7 +505,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <FormItem>
                           <FormLabel>Total New Employees</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input 
+                              type="number" 
+                              {...field} 
+                              value={field.value === 0 ? "" : field.value}
+                              onFocus={handleNumberInputFocus}
+                              placeholder="0"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -448,7 +525,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <FormItem>
                           <FormLabel>New Employees Covered</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input 
+                              type="number" 
+                              {...field} 
+                              value={field.value === 0 ? "" : field.value}
+                              onFocus={handleNumberInputFocus}
+                              placeholder="0"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -467,7 +550,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <FormItem>
                           <FormLabel>Total Star Employees</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input 
+                              type="number" 
+                              {...field} 
+                              value={field.value === 0 ? "" : field.value}
+                              onFocus={handleNumberInputFocus}
+                              placeholder="0"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -481,7 +570,13 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <FormItem>
                           <FormLabel>Star Employees Covered</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} />
+                            <Input 
+                              type="number" 
+                              {...field} 
+                              value={field.value === 0 ? "" : field.value}
+                              onFocus={handleNumberInputFocus}
+                              placeholder="0"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -491,160 +586,267 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                 </div>
               </div>
               
-              {/* Qualitative Assessment Section */}
-              <div className="border-t pt-4 mt-6 space-y-4">
+              {/* Qualitative Assessment Section - Updated to use buttons */}
+              <div className="border-t pt-4 mt-6 space-y-6">
                 <h3 className="text-lg font-medium">Qualitative Assessment</h3>
-                <div className="grid grid-cols-1 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="leaders_aligned_with_code"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Leaders aligned with code of conduct</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select response" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="employees_feel_safe"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Employees feel safe at workplace</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select response" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="employees_feel_motivated"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Employees feel motivated</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select response" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="leaders_abusive_language"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Leaders avoid abusive language</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select response" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="employees_comfort_escalation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Employees comfortable with escalation</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select response" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="inclusive_culture"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Inclusive culture</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select response" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="feedback"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Additional Feedback</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Enter any additional observations or feedback here..." 
-                            className="min-h-[120px]" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                
+                {/* Leaders aligned with code */}
+                <FormField
+                  control={form.control}
+                  name="leaders_aligned_with_code"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Do leaders conduct business/work that is aligned with company's code of conduct?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="flex gap-4"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Yes" id="leaders_aligned_yes" />
+                            <label 
+                              htmlFor="leaders_aligned_yes" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsUp className="h-4 w-4 text-green-600" />
+                              <span>Yes</span>
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="No" id="leaders_aligned_no" />
+                            <label 
+                              htmlFor="leaders_aligned_no" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsDown className="h-4 w-4 text-red-600" />
+                              <span>No</span>
+                            </label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {/* Employees feel safe */}
+                <FormField
+                  control={form.control}
+                  name="employees_feel_safe"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Do employees feel safe & secure at their workplace?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="flex gap-4"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Yes" id="feel_safe_yes" />
+                            <label 
+                              htmlFor="feel_safe_yes" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsUp className="h-4 w-4 text-green-600" />
+                              <span>Yes</span>
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="No" id="feel_safe_no" />
+                            <label 
+                              htmlFor="feel_safe_no" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsDown className="h-4 w-4 text-red-600" />
+                              <span>No</span>
+                            </label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {/* Employees feel motivated */}
+                <FormField
+                  control={form.control}
+                  name="employees_feel_motivated"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Do employees feel motivated at workplace?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="flex gap-4"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Yes" id="feel_motivated_yes" />
+                            <label 
+                              htmlFor="feel_motivated_yes" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsUp className="h-4 w-4 text-green-600" />
+                              <span>Yes</span>
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="No" id="feel_motivated_no" />
+                            <label 
+                              htmlFor="feel_motivated_no" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsDown className="h-4 w-4 text-red-600" />
+                              <span>No</span>
+                            </label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {/* Leaders use abusive language */}
+                <FormField
+                  control={form.control}
+                  name="leaders_abusive_language"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Do leaders use abusive and rude language in meetings or on the floor or in person?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="flex gap-4"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Yes" id="abusive_language_yes" />
+                            <label 
+                              htmlFor="abusive_language_yes" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsDown className="h-4 w-4 text-red-600" />
+                              <span>Yes</span>
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="No" id="abusive_language_no" />
+                            <label 
+                              htmlFor="abusive_language_no" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsUp className="h-4 w-4 text-green-600" />
+                              <span>No</span>
+                            </label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {/* Employees comfortable with escalation */}
+                <FormField
+                  control={form.control}
+                  name="employees_comfort_escalation"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Do employees feel comfortable to escalate or raise malpractice or ethically wrong things?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="flex gap-4"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Yes" id="comfort_escalation_yes" />
+                            <label 
+                              htmlFor="comfort_escalation_yes" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsUp className="h-4 w-4 text-green-600" />
+                              <span>Yes</span>
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="No" id="comfort_escalation_no" />
+                            <label 
+                              htmlFor="comfort_escalation_no" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsDown className="h-4 w-4 text-red-600" />
+                              <span>No</span>
+                            </label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {/* Inclusive culture */}
+                <FormField
+                  control={form.control}
+                  name="inclusive_culture"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel>Do employees feel workplace culture is inclusive with respect to caste, gender & religion?</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          className="flex gap-4"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Yes" id="inclusive_culture_yes" />
+                            <label 
+                              htmlFor="inclusive_culture_yes" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsUp className="h-4 w-4 text-green-600" />
+                              <span>Yes</span>
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="No" id="inclusive_culture_no" />
+                            <label 
+                              htmlFor="inclusive_culture_no" 
+                              className="flex items-center gap-1 cursor-pointer"
+                            >
+                              <ThumbsDown className="h-4 w-4 text-red-600" />
+                              <span>No</span>
+                            </label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="feedback"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Feedback</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Enter any additional observations or feedback here..." 
+                          className="min-h-[120px]" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
             
