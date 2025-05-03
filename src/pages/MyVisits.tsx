@@ -193,7 +193,7 @@ const MyVisits = () => {
           setEditModalOpen(false);
           setSelectedEditVisit(null);
         }}
-        visitData={selectedEditVisit}
+        visitData={selectedEditVisit as any}
         onUpdateSuccess={fetchVisits}
       />
     </div>

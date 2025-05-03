@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -43,6 +43,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { BranchVisitSummary } from "@/services/reportService";
 
 const formSchema = z.object({
   branch_id: z.string({
@@ -118,7 +119,7 @@ interface VisitReportData {
 interface EditVisitModalProps {
   isOpen: boolean;
   onClose: () => void;
-  visitData: VisitReportData | null;
+  visitData: BranchVisitSummary | null;
   onUpdateSuccess: () => void;
 }
 
@@ -268,6 +269,9 @@ const EditVisitModal = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">Edit Branch Visit Report</DialogTitle>
+          <DialogDescription>
+            Make changes to your visit report. Save as draft or submit when finished.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
