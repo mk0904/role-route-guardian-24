@@ -73,12 +73,12 @@ const formSchema = z.object({
   new_employees_covered: z.coerce.number().int().min(0).optional(),
   star_employees_total: z.coerce.number().int().min(0).optional(),
   star_employees_covered: z.coerce.number().int().min(0).optional(),
-  leaders_aligned_with_code: z.enum(["very_poor", "poor", "neutral", "good", "excellent"]).optional(),
-  employees_feel_safe: z.enum(["very_poor", "poor", "neutral", "good", "excellent"]).optional(),
-  employees_feel_motivated: z.enum(["very_poor", "poor", "neutral", "good", "excellent"]).optional(),
-  leaders_abusive_language: z.enum(["very_poor", "poor", "neutral", "good", "excellent"]).optional(),
-  employees_comfort_escalation: z.enum(["very_poor", "poor", "neutral", "good", "excellent"]).optional(),
-  inclusive_culture: z.enum(["very_poor", "poor", "neutral", "good", "excellent"]).optional(),
+  leaders_aligned_with_code: z.string().optional(),
+  employees_feel_safe: z.string().optional(),
+  employees_feel_motivated: z.string().optional(),
+  leaders_abusive_language: z.string().optional(),
+  employees_comfort_escalation: z.string().optional(),
+  inclusive_culture: z.string().optional(),
   feedback: z.string().optional(),
 });
 
@@ -145,12 +145,12 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
         new_employees_covered: visitData.new_employees_covered || 0,
         star_employees_total: visitData.star_employees_total || 0,
         star_employees_covered: visitData.star_employees_covered || 0,
-        leaders_aligned_with_code: visitData.leaders_aligned_with_code as any || undefined,
-        employees_feel_safe: visitData.employees_feel_safe as any || undefined,
-        employees_feel_motivated: visitData.employees_feel_motivated as any || undefined,
-        leaders_abusive_language: visitData.leaders_abusive_language as any || undefined,
-        employees_comfort_escalation: visitData.employees_comfort_escalation as any || undefined,
-        inclusive_culture: visitData.inclusive_culture as any || undefined,
+        leaders_aligned_with_code: visitData.leaders_aligned_with_code || "",
+        employees_feel_safe: visitData.employees_feel_safe || "",
+        employees_feel_motivated: visitData.employees_feel_motivated || "",
+        leaders_abusive_language: visitData.leaders_abusive_language || "",
+        employees_comfort_escalation: visitData.employees_comfort_escalation || "",
+        inclusive_culture: visitData.inclusive_culture || "",
         feedback: visitData.feedback || "",
       });
     }
@@ -504,15 +504,12 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select rating" />
+                              <SelectValue placeholder="Select response" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="very_poor">Very Poor</SelectItem>
-                            <SelectItem value="poor">Poor</SelectItem>
-                            <SelectItem value="neutral">Neutral</SelectItem>
-                            <SelectItem value="good">Good</SelectItem>
-                            <SelectItem value="excellent">Excellent</SelectItem>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -529,15 +526,12 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select rating" />
+                              <SelectValue placeholder="Select response" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="very_poor">Very Poor</SelectItem>
-                            <SelectItem value="poor">Poor</SelectItem>
-                            <SelectItem value="neutral">Neutral</SelectItem>
-                            <SelectItem value="good">Good</SelectItem>
-                            <SelectItem value="excellent">Excellent</SelectItem>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -554,15 +548,12 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select rating" />
+                              <SelectValue placeholder="Select response" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="very_poor">Very Poor</SelectItem>
-                            <SelectItem value="poor">Poor</SelectItem>
-                            <SelectItem value="neutral">Neutral</SelectItem>
-                            <SelectItem value="good">Good</SelectItem>
-                            <SelectItem value="excellent">Excellent</SelectItem>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -579,15 +570,12 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select rating" />
+                              <SelectValue placeholder="Select response" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="very_poor">Very Poor</SelectItem>
-                            <SelectItem value="poor">Poor</SelectItem>
-                            <SelectItem value="neutral">Neutral</SelectItem>
-                            <SelectItem value="good">Good</SelectItem>
-                            <SelectItem value="excellent">Excellent</SelectItem>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -604,15 +592,12 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select rating" />
+                              <SelectValue placeholder="Select response" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="very_poor">Very Poor</SelectItem>
-                            <SelectItem value="poor">Poor</SelectItem>
-                            <SelectItem value="neutral">Neutral</SelectItem>
-                            <SelectItem value="good">Good</SelectItem>
-                            <SelectItem value="excellent">Excellent</SelectItem>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -629,15 +614,12 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select rating" />
+                              <SelectValue placeholder="Select response" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="very_poor">Very Poor</SelectItem>
-                            <SelectItem value="poor">Poor</SelectItem>
-                            <SelectItem value="neutral">Neutral</SelectItem>
-                            <SelectItem value="good">Good</SelectItem>
-                            <SelectItem value="excellent">Excellent</SelectItem>
+                            <SelectItem value="Yes">Yes</SelectItem>
+                            <SelectItem value="No">No</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

@@ -224,19 +224,6 @@ const BHRDetailsModal = ({ bhId, open, onClose }: BHRDetailsModalProps) => {
     });
   };
 
-  const getQualitativeLabel = (value: string | null) => {
-    if (!value) return "Not rated";
-    
-    switch (value) {
-      case 'very_poor': return 'Very Poor';
-      case 'poor': return 'Poor';
-      case 'neutral': return 'Neutral';
-      case 'good': return 'Good';
-      case 'excellent': return 'Excellent';
-      default: return 'Not rated';
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
@@ -395,214 +382,104 @@ const BHRDetailsModal = ({ bhId, open, onClose }: BHRDetailsModalProps) => {
                       <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                     </div>
                   ) : !reportDetails ? (
-                    <div className="py-4 text-center text-slate-500">Report not found</div>
+                    <div className="text-center py-8 text-slate-500">Report not found</div>
                   ) : (
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg">
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-500">Branch</h3>
-                          <p className="text-lg font-medium">{getBranchName(reportDetails)}</p>
+                    <>
+                      <div className="mb-6">
+                        <div className="flex justify-between items-center mb-3">
+                          <h3 className="text-lg font-semibold">{getBranchName(reportDetails)}</h3>
+                          <div>{getCategoryBadge(getBranchCategory(reportDetails))}</div>
                         </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-500">Location</h3>
-                          <p className="text-lg font-medium">{getBranchLocation(reportDetails)}</p>
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-500">Category</h3>
-                          <p className="text-lg font-medium capitalize">{getBranchCategory(reportDetails)}</p>
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-500">Visit Date</h3>
-                          <p className="text-lg font-medium">{formatDate(reportDetails.visit_date)}</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h3 className="font-medium text-lg border-b pb-2">Visit Details</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="p-3 bg-slate-50 rounded-md">
-                            <h4 className="text-sm font-medium text-gray-500">HR Connect Session</h4>
-                            <p className="font-medium">{reportDetails.hr_connect_session ? "Conducted" : "Not Conducted"}</p>
+                        <p className="text-sm text-slate-600">{getBranchLocation(reportDetails)}</p>
+                        <div className="mt-4 grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-xs text-slate-500">Visit Date</p>
+                            <p className="font-medium">{formatDate(reportDetails.visit_date)}</p>
                           </div>
-                          <div className="p-3 bg-slate-50 rounded-md">
-                            <h4 className="text-sm font-medium text-gray-500">Manning Percentage</h4>
-                            <p className="font-medium">{reportDetails.manning_percentage}%</p>
-                          </div>
-                          <div className="p-3 bg-slate-50 rounded-md">
-                            <h4 className="text-sm font-medium text-gray-500">Attrition Percentage</h4>
-                            <p className="font-medium">{reportDetails.attrition_percentage}%</p>
-                          </div>
-                          <div className="p-3 bg-slate-50 rounded-md">
-                            <h4 className="text-sm font-medium text-gray-500">Non-Vendor Percentage</h4>
-                            <p className="font-medium">{reportDetails.non_vendor_percentage || 0}%</p>
+                          <div>
+                            <p className="text-xs text-slate-500">HR Connect Session</p>
+                            <p className="font-medium">{reportDetails.hr_connect_session ? 'Yes' : 'No'}</p>
                           </div>
                         </div>
                       </div>
-
-                      {reportDetails.total_employees_invited > 0 && (
-                        <div className="space-y-4">
-                          <h3 className="font-medium text-lg border-b pb-2">HR Connect Coverage</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="p-3 bg-slate-50 rounded-md">
-                              <h4 className="text-sm font-medium text-gray-500">Employees Invited</h4>
-                              <p className="font-medium">{reportDetails.total_employees_invited}</p>
-                            </div>
-                            <div className="p-3 bg-slate-50 rounded-md">
-                              <h4 className="text-sm font-medium text-gray-500">Participants</h4>
-                              <p className="font-medium">{reportDetails.total_participants}</p>
-                            </div>
-                            <div className="p-3 bg-slate-50 rounded-md">
-                              <h4 className="text-sm font-medium text-gray-500">Coverage</h4>
-                              <p className="font-medium">
-                                {reportDetails.total_employees_invited > 0 
-                                  ? Math.round((reportDetails.total_participants / reportDetails.total_employees_invited) * 100)
-                                  : 0}%
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {(reportDetails.new_employees_total > 0 || reportDetails.star_employees_total > 0) && (
-                        <div className="space-y-4">
-                          <h3 className="font-medium text-lg border-b pb-2">Employee Coverage</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {reportDetails.new_employees_total > 0 && (
-                              <div className="p-3 bg-slate-50 rounded-md">
-                                <h4 className="text-sm font-medium text-gray-500">New Employees (0-6 months)</h4>
-                                <div className="grid grid-cols-2 gap-2 mt-2">
-                                  <div>
-                                    <p className="text-xs text-gray-500">Total</p>
-                                    <p className="font-medium">{reportDetails.new_employees_total}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-gray-500">Covered</p>
-                                    <p className="font-medium">{reportDetails.new_employees_covered}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                            
-                            {reportDetails.star_employees_total > 0 && (
-                              <div className="p-3 bg-slate-50 rounded-md">
-                                <h4 className="text-sm font-medium text-gray-500">STAR Employees</h4>
-                                <div className="grid grid-cols-2 gap-2 mt-2">
-                                  <div>
-                                    <p className="text-xs text-gray-500">Total</p>
-                                    <p className="font-medium">{reportDetails.star_employees_total}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-xs text-gray-500">Covered</p>
-                                    <p className="font-medium">{reportDetails.star_employees_covered}</p>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {reportDetails.leaders_aligned_with_code || reportDetails.employees_feel_safe || reportDetails.employees_feel_motivated || reportDetails.leaders_abusive_language || reportDetails.employees_comfort_escalation || reportDetails.inclusive_culture ? (
-                        <div className="space-y-4">
-                          <h3 className="font-medium text-lg border-b pb-2">Qualitative Assessment</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {reportDetails.leaders_aligned_with_code && (
-                              <div className="p-3 bg-slate-50 rounded-md">
-                                <h4 className="text-sm font-medium text-gray-500">Leaders Aligned with Code</h4>
-                                <p className="font-medium">{getQualitativeLabel(reportDetails.leaders_aligned_with_code)}</p>
-                              </div>
-                            )}
-                            
-                            {reportDetails.employees_feel_safe && (
-                              <div className="p-3 bg-slate-50 rounded-md">
-                                <h4 className="text-sm font-medium text-gray-500">Employees Feel Safe</h4>
-                                <p className="font-medium">{getQualitativeLabel(reportDetails.employees_feel_safe)}</p>
-                              </div>
-                            )}
-                            
-                            {reportDetails.employees_feel_motivated && (
-                              <div className="p-3 bg-slate-50 rounded-md">
-                                <h4 className="text-sm font-medium text-gray-500">Employees Feel Motivated</h4>
-                                <p className="font-medium">{getQualitativeLabel(reportDetails.employees_feel_motivated)}</p>
-                              </div>
-                            )}
-                            
-                            {reportDetails.leaders_abusive_language && (
-                              <div className="p-3 bg-slate-50 rounded-md">
-                                <h4 className="text-sm font-medium text-gray-500">Leaders Use Abusive Language</h4>
-                                <p className="font-medium">{getQualitativeLabel(reportDetails.leaders_abusive_language)}</p>
-                              </div>
-                            )}
-                            
-                            {reportDetails.employees_comfort_escalation && (
-                              <div className="p-3 bg-slate-50 rounded-md">
-                                <h4 className="text-sm font-medium text-gray-500">Employees Comfortable with Escalation</h4>
-                                <p className="font-medium">{getQualitativeLabel(reportDetails.employees_comfort_escalation)}</p>
-                              </div>
-                            )}
-                            
-                            {reportDetails.inclusive_culture && (
-                              <div className="p-3 bg-slate-50 rounded-md">
-                                <h4 className="text-sm font-medium text-gray-500">Inclusive Culture</h4>
-                                <p className="font-medium">{getQualitativeLabel(reportDetails.inclusive_culture)}</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ) : null}
-
-                      {reportDetails.feedback && (
+                      
+                      <div className="space-y-6">
                         <div>
-                          <h3 className="font-medium text-lg border-b pb-2">Feedback</h3>
-                          <div className="mt-2 p-4 bg-slate-50 rounded-md">
-                            <p>{reportDetails.feedback}</p>
+                          <h4 className="font-medium mb-2 text-base">Branch Metrics</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-md">
+                            <div>
+                              <p className="text-xs text-slate-500">Manning</p>
+                              <p className="font-medium">{reportDetails.manning_percentage || 0}%</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500">Attrition</p>
+                              <p className="font-medium">{reportDetails.attrition_percentage || 0}%</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500">ER Percentage</p>
+                              <p className="font-medium">{reportDetails.er_percentage || 0}%</p>
+                            </div>
                           </div>
                         </div>
-                      )}
-
-                      <div className="sticky bottom-0 py-4 bg-white border-t mt-6 flex justify-end gap-3">
-                        {reportDetails.status === "submitted" && (
-                          <>
-                            <Button
-                              variant="outline"
-                              className="bg-white border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
-                              onClick={() => handleStatusUpdate(reportDetails.id, "rejected")}
-                            >
-                              <X className="mr-2 h-4 w-4" />
-                              Reject Report
-                            </Button>
-                            <Button
-                              className="bg-green-600 hover:bg-green-700 text-white"
-                              onClick={() => handleStatusUpdate(reportDetails.id, "approved")}
-                            >
-                              <Check className="mr-2 h-4 w-4" />
-                              Approve Report
-                            </Button>
-                          </>
+                        
+                        <div>
+                          <h4 className="font-medium mb-2 text-base">Qualitative Assessment</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-md">
+                            <div>
+                              <p className="text-xs text-slate-500">Leaders Aligned with Code</p>
+                              <p className="font-medium">{reportDetails.leaders_aligned_with_code || 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500">Employees Feel Safe</p>
+                              <p className="font-medium">{reportDetails.employees_feel_safe || 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500">Employees Feel Motivated</p>
+                              <p className="font-medium">{reportDetails.employees_feel_motivated || 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500">Leaders Avoid Abusive Language</p>
+                              <p className="font-medium">{reportDetails.leaders_abusive_language || 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500">Comfortable with Escalation</p>
+                              <p className="font-medium">{reportDetails.employees_comfort_escalation || 'Not specified'}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500">Inclusive Culture</p>
+                              <p className="font-medium">{reportDetails.inclusive_culture || 'Not specified'}</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {reportDetails.feedback && (
+                          <div>
+                            <h4 className="font-medium mb-2 text-base">Feedback</h4>
+                            <div className="bg-slate-50 p-4 rounded-md">
+                              <p className="text-sm">{reportDetails.feedback}</p>
+                            </div>
+                          </div>
                         )}
-
-                        {reportDetails.status === "approved" && (
-                          <Button
-                            variant="outline"
-                            className="bg-white border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      </div>
+                      
+                      {reportDetails.status === "submitted" && (
+                        <div className="flex justify-end gap-2 mt-6">
+                          <Button 
+                            variant="outline" 
                             onClick={() => handleStatusUpdate(reportDetails.id, "rejected")}
                           >
-                            <X className="mr-2 h-4 w-4" />
-                            Reject Report
+                            <X className="h-4 w-4 mr-1" />
+                            Reject
                           </Button>
-                        )}
-
-                        {reportDetails.status === "rejected" && (
                           <Button
-                            className="bg-green-600 hover:bg-green-700 text-white"
                             onClick={() => handleStatusUpdate(reportDetails.id, "approved")}
                           >
-                            <Check className="mr-2 h-4 w-4" />
-                            Approve Report
+                            <Check className="h-4 w-4 mr-1" />
+                            Approve
                           </Button>
-                        )}
-                      </div>
-                    </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </DialogContent>
               </Dialog>

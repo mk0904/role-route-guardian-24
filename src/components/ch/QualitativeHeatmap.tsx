@@ -92,15 +92,8 @@ const QualitativeHeatmap = ({
     );
   }
 
-  // Format the rating labels for better display
-  const formatRatingLabel = (rating: string): string => {
-    return rating.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-  };
-
-  // All possible ratings in order
-  const ratingColumns = ["very_poor", "poor", "neutral", "good", "excellent"];
+  // All possible response values
+  const responseColumns = ["Yes", "No"];
 
   return (
     <Card className="w-full">
@@ -113,9 +106,9 @@ const QualitativeHeatmap = ({
             <thead>
               <tr>
                 <th className="p-2 text-left font-medium text-gray-600">Metric</th>
-                {ratingColumns.map(rating => (
-                  <th key={rating} className="p-2 text-center font-medium text-gray-600">
-                    {formatRatingLabel(rating)}
+                {responseColumns.map(response => (
+                  <th key={response} className="p-2 text-center font-medium text-gray-600">
+                    {response}
                   </th>
                 ))}
               </tr>
@@ -126,9 +119,9 @@ const QualitativeHeatmap = ({
                   <td className="p-3 font-medium">
                     {metricLabels[row.metric]}
                   </td>
-                  {ratingColumns.map(rating => {
-                    const count = typeof row[rating as keyof HeatmapData] === 'number' 
-                      ? row[rating as keyof HeatmapData] as number 
+                  {responseColumns.map(response => {
+                    const count = typeof row[response.toLowerCase() as keyof HeatmapData] === 'number' 
+                      ? row[response.toLowerCase() as keyof HeatmapData] as number 
                       : 0;
                     
                     const total = typeof row.total === 'number' ? row.total : 0;
@@ -137,7 +130,7 @@ const QualitativeHeatmap = ({
                     
                     return (
                       <td 
-                        key={`${row.metric}-${rating}`} 
+                        key={`${row.metric}-${response}`} 
                         className="p-3 text-center" 
                         style={{ backgroundColor }}
                       >

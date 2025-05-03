@@ -79,19 +79,6 @@ const BranchVisitDetailsModal = ({
     return category.charAt(0).toUpperCase() + category.slice(1);
   };
 
-  const getQualitativeLabel = (value: string | null) => {
-    if (!value) return "Not rated";
-    
-    switch (value) {
-      case 'very_poor': return 'Very Poor';
-      case 'poor': return 'Poor';
-      case 'neutral': return 'Neutral';
-      case 'good': return 'Good';
-      case 'excellent': return 'Excellent';
-      default: return 'Not rated';
-    }
-  };
-
   const statusBadge = getStatusBadge(visit.status);
 
   return (
@@ -250,27 +237,27 @@ const BranchVisitDetailsModal = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-xs text-slate-500">Leaders Aligned with Code</p>
-                  <p className="text-sm font-medium">{visit.leaders_aligned_with_code || 'Not rated'}</p>
+                  <p className="text-sm font-medium">{visit.leaders_aligned_with_code || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Employees Feel Safe</p>
-                  <p className="text-sm font-medium">{visit.employees_feel_safe || 'Not rated'}</p>
+                  <p className="text-sm font-medium">{visit.employees_feel_safe || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Employees Feel Motivated</p>
-                  <p className="text-sm font-medium">{visit.employees_feel_motivated || 'Not rated'}</p>
+                  <p className="text-sm font-medium">{visit.employees_feel_motivated || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Leaders Use Abusive Language</p>
-                  <p className="text-sm font-medium">{visit.leaders_abusive_language || 'Not rated'}</p>
+                  <p className="text-sm font-medium">{visit.leaders_abusive_language || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Employees Comfortable with Escalation</p>
-                  <p className="text-sm font-medium">{visit.employees_comfort_escalation || 'Not rated'}</p>
+                  <p className="text-sm font-medium">{visit.employees_comfort_escalation || 'Not specified'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500">Inclusive Culture</p>
-                  <p className="text-sm font-medium">{visit.inclusive_culture || 'Not rated'}</p>
+                  <p className="text-sm font-medium">{visit.inclusive_culture || 'Not specified'}</p>
                 </div>
               </div>
             </div>
