@@ -20,6 +20,15 @@ const metricLabels: Record<QualitativeMetric, string> = {
   inclusive_culture: "Inclusive Culture"
 };
 
+const metricQuestions: Record<QualitativeMetric, string> = {
+  leaders_aligned_with_code: "Do leaders conduct business/work that is aligned with company's code of conduct?",
+  employees_feel_safe: "Do employees feel safe & secure at their workplace?",
+  employees_feel_motivated: "Do employees feel motivated at workplace?",
+  leaders_abusive_language: "Do leaders use abusive and rude language in meetings or on the floor or in person?",
+  employees_comfort_escalation: "Do employees feel comfortable to escalate or raise malpractice or ethically wrong things?",
+  inclusive_culture: "Do employees feel workplace culture is inclusive with respect to caste, gender & religion?"
+};
+
 const QualitativeHeatmap = ({ 
   title = "Qualitative Assessment Heatmap", 
   dateRange = null,
@@ -105,7 +114,7 @@ const QualitativeHeatmap = ({
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                <th className="p-2 text-left font-medium text-gray-600">Metric</th>
+                <th className="p-2 text-left font-medium text-gray-600">Question</th>
                 {responseColumns.map(response => (
                   <th key={response} className="p-2 text-center font-medium text-gray-600">
                     {response}
@@ -117,7 +126,7 @@ const QualitativeHeatmap = ({
               {data.map((row, index) => (
                 <tr key={index} className="border-t border-gray-200">
                   <td className="p-3 font-medium">
-                    {metricLabels[row.metric]}
+                    {metricQuestions[row.metric]}
                   </td>
                   {responseColumns.map(response => {
                     const count = typeof row[response.toLowerCase() as keyof HeatmapData] === 'number' 
