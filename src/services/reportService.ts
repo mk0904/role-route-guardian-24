@@ -60,11 +60,8 @@ export type QualitativeMetric =
 
 export interface HeatmapData {
   metric: QualitativeMetric;
-  very_poor: number;
-  poor: number;
-  neutral: number;
-  good: number;
-  excellent: number;
+  yes: number;
+  no: number;
   total: number;
 }
 
@@ -151,11 +148,8 @@ export async function getQualitativeMetricsForHeatmap(
   
   const heatmapData: HeatmapData[] = metrics.map(metric => ({
     metric,
-    very_poor: 0,
-    poor: 0,
-    neutral: 0,
-    good: 0,
-    excellent: 0,
+    yes: 0,
+    no: 0,
     total: 0
   }));
   
@@ -165,8 +159,11 @@ export async function getQualitativeMetricsForHeatmap(
       if (value) {
         const metricData = heatmapData.find(d => d.metric === metric);
         if (metricData) {
-          metricData[value as keyof HeatmapData] = 
-            (metricData[value as keyof HeatmapData] as number) + 1;
+          if (value.toLowerCase() === 'yes') {
+            metricData.yes += 1;
+          } else if (value.toLowerCase() === 'no') {
+            metricData.no += 1;
+          }
           metricData.total += 1;
         }
       }

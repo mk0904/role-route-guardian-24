@@ -1,58 +1,43 @@
 
-import React from "react";
 import { Check, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface YesNoToggleProps {
-  label?: string;
   value: boolean | null;
   onChange: (value: boolean) => void;
-  disabled?: boolean;
+  name: string;
+  label?: string;
 }
 
-const YesNoToggle = ({
-  label,
-  value,
-  onChange,
-  disabled = false,
-}: YesNoToggleProps) => {
+export function YesNoToggle({ value, onChange, name, label }: YesNoToggleProps) {
   return (
     <div className="space-y-2">
-      {label && (
-        <div className="font-medium text-base">{label}</div>
-      )}
+      {label && <div className="font-medium text-sm">{label}</div>}
       <div className="flex gap-3">
         <button
           type="button"
           onClick={() => onChange(true)}
-          disabled={disabled}
-          className={cn(
-            "flex items-center justify-center gap-2 px-6 py-2 rounded-md border transition-all",
+          className={`px-4 py-2 rounded-md flex items-center gap-1.5 transition-colors ${
             value === true
-              ? "bg-green-500 border-green-600 text-white font-medium"
-              : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-          )}
+              ? "bg-green-100 text-green-700 border-2 border-green-300"
+              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+          }`}
         >
-          <Check className={cn("h-4 w-4", value === true ? "text-white" : "text-gray-500")} />
-          <span>Yes</span>
+          <Check className={`h-4 w-4 ${value === true ? "text-green-500" : "text-gray-400"}`} />
+          Yes
         </button>
         <button
           type="button"
           onClick={() => onChange(false)}
-          disabled={disabled}
-          className={cn(
-            "flex items-center justify-center gap-2 px-6 py-2 rounded-md border transition-all",
+          className={`px-4 py-2 rounded-md flex items-center gap-1.5 transition-colors ${
             value === false
-              ? "bg-red-500 border-red-600 text-white font-medium"
-              : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-          )}
+              ? "bg-red-100 text-red-700 border-2 border-red-300"
+              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+          }`}
         >
-          <X className={cn("h-4 w-4", value === false ? "text-white" : "text-gray-500")} />
-          <span>No</span>
+          <X className={`h-4 w-4 ${value === false ? "text-red-500" : "text-gray-400"}`} />
+          No
         </button>
       </div>
     </div>
   );
-};
-
-export { YesNoToggle };
+}

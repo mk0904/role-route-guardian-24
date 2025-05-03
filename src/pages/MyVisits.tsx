@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
-import { Check, Clock, Edit, Eye, FileText, Plus, Search } from "lucide-react";
+import { Check, Clock, Edit, Eye, FileText, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
 import BranchVisitDetailsModal from "@/components/branch/BranchVisitDetailsModal";
 import EditVisitModal from "@/components/branch/EditVisitModal";
 import { BranchVisitSummary } from "@/services/reportService";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 const MyVisits = () => {
   const { user } = useAuth();
@@ -34,6 +35,8 @@ const MyVisits = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [monthFilter, setMonthFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [visitToDelete, setVisitToDelete] = useState<BranchVisitSummary | null>(null);
 
   const fetchVisits = async () => {
     if (!user) return;
@@ -84,6 +87,40 @@ const MyVisits = () => {
     setEditModalOpen(true);
   };
 
+  const handleDeleteVisit = (visit: BranchVisitSummary) => {
+    setVisitToDelete(visit);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteVisit = async () => {
+    if (!visitToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from("branch_visits")
+        .delete()
+        .eq("id", visitToDelete.id);
+        
+      if (error) throw error;
+      
+      setVisits(visits.filter(visit => visit.id !== visitToDelete.id));
+      toast({
+        title: "Visit report deleted",
+        description: "The visit report has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting visit report:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete the visit report.",
+      });
+    } finally {
+      setVisitToDelete(null);
+      setDeleteDialogOpen(false);
+    }
+  };
+
   const getStatusBadge = (status: string | null) => {
     switch (status) {
       case "draft":
@@ -100,6 +137,11 @@ const MyVisits = () => {
         return <Badge className="bg-green-100 text-green-800 flex items-center gap-1 font-normal">
           <Check className="h-3 w-3" />
           Approved
+        </Badge>;
+      case "rejected":
+        return <Badge className="bg-red-100 text-red-800 flex items-center gap-1 font-normal">
+          <Check className="h-3 w-3" />
+          Rejected
         </Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
@@ -174,7 +216,7 @@ const MyVisits = () => {
           <p className="text-slate-600 mt-1">View and manage your branch visit records</p>
         </div>
         <Button 
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white rounded-full px-6"
           onClick={() => window.location.href = "/bh/new-visit"}
         >
           <Plus className="h-4 w-4" />
@@ -184,8 +226,8 @@ const MyVisits = () => {
 
       <Card className="mb-8">
         <CardContent className="p-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="relative lg:col-span-2">
+          <div className="flex flex-col gap-4">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
               <Input
                 placeholder="Search by branch name, location..."
@@ -195,38 +237,43 @@ const MyVisits = () => {
               />
             </div>
             
-            <Select value={monthFilter} onValueChange={setMonthFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Months" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Months</SelectItem>
-                {uniqueMonths.map(month => (
-                  <SelectItem key={month} value={month}>{month}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Select value={monthFilter} onValueChange={setMonthFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Months" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Months</SelectItem>
+                  {uniqueMonths.map(month => (
+                    <SelectItem key={month} value={month}>{month}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {uniqueCategories.map(category => (
-                  <SelectItem key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="submitted">Submitted</TabsTrigger>
-                <TabsTrigger value="approved">Approved</TabsTrigger>
-                <TabsTrigger value="draft">Draft</TabsTrigger>
-              </TabsList>
-            </Tabs>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {uniqueCategories.map(category => (
+                    <SelectItem key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <div className="w-full">
+                <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
+                  <TabsList className="grid w-full grid-cols-5">
+                    <TabsTrigger value="all">All</TabsTrigger>
+                    <TabsTrigger value="submitted">Submitted</TabsTrigger>
+                    <TabsTrigger value="approved">Approved</TabsTrigger>
+                    <TabsTrigger value="rejected">Rejected</TabsTrigger>
+                    <TabsTrigger value="draft">Draft</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -255,6 +302,7 @@ const MyVisits = () => {
             <Card key={visit.id} className={`hover:shadow-md transition-shadow border-l-4 ${
               visit.status === 'approved' ? 'border-l-green-500' : 
               visit.status === 'submitted' ? 'border-l-blue-500' : 
+              visit.status === 'rejected' ? 'border-l-red-500' :
               'border-l-slate-300'
             }`}>
               <CardContent className="p-6">
@@ -297,15 +345,24 @@ const MyVisits = () => {
                   </Button>
                   
                   {visit.status === "draft" && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => handleEditVisit(visit)}
-                    >
-                      <Edit className="h-4 w-4 mr-2" /> 
-                      Edit
-                    </Button>
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleEditVisit(visit)}
+                      >
+                        <Edit className="h-4 w-4 mr-2" /> 
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteVisit(visit)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </>
                   )}
                 </div>
               </CardContent>
@@ -334,6 +391,26 @@ const MyVisits = () => {
         visitData={selectedEditVisit}
         onUpdateSuccess={fetchVisits}
       />
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Visit Report</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this visit report? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteVisit} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
