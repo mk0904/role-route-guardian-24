@@ -24,6 +24,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   Select,
@@ -37,6 +38,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { YesNoToggle } from "@/components/ui/yes-no-toggle";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarIcon, Save, Check, X, ThumbsUp, ThumbsDown } from "lucide-react";
 import { format, parseISO } from "date-fns";
@@ -104,6 +107,14 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
     },
   });
   
+  // Add state variables for YesNoToggle components
+  const [leadersAlignedWithCode, setLeadersAlignedWithCode] = useState<boolean | null>(null);
+  const [employeesFeelSafe, setEmployeesFeelSafe] = useState<boolean | null>(null);
+  const [employeesFeelMotivated, setEmployeesFeelMotivated] = useState<boolean | null>(null);
+  const [leadersAbusiveLanguage, setLeadersAbusiveLanguage] = useState<boolean | null>(null);
+  const [employeesComfortEscalation, setEmployeesComfortEscalation] = useState<boolean | null>(null);
+  const [inclusiveCulture, setInclusiveCulture] = useState<boolean | null>(null);
+  
   useEffect(() => {
     const fetchBranches = async () => {
       try {
@@ -154,6 +165,14 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
         inclusive_culture: visitData.inclusive_culture || "",
         feedback: visitData.feedback || "",
       });
+
+      // Set YesNoToggle states
+      setLeadersAlignedWithCode(visitData.leaders_aligned_with_code === "yes");
+      setEmployeesFeelSafe(visitData.employees_feel_safe === "yes");
+      setEmployeesFeelMotivated(visitData.employees_feel_motivated === "yes");
+      setLeadersAbusiveLanguage(visitData.leaders_abusive_language === "yes");
+      setEmployeesComfortEscalation(visitData.employees_comfort_escalation === "yes");
+      setInclusiveCulture(visitData.inclusive_culture === "yes");
     }
   }, [visitData, form]);
 
@@ -171,6 +190,12 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
         .from("branch_visits")
         .update({
           ...data,
+          leaders_aligned_with_code: leadersAlignedWithCode ? "yes" : "no",
+          employees_feel_safe: employeesFeelSafe ? "yes" : "no",
+          employees_feel_motivated: employeesFeelMotivated ? "yes" : "no",
+          leaders_abusive_language: leadersAbusiveLanguage ? "yes" : "no",
+          employees_comfort_escalation: employeesComfortEscalation ? "yes" : "no",
+          inclusive_culture: inclusiveCulture ? "yes" : "no",
           status,
           visit_date: `${visitDate.getFullYear()}-${String(visitDate.getMonth() + 1).padStart(2, '0')}-${String(visitDate.getDate()).padStart(2, '0')}`,
           updated_at: new Date().toISOString(),
@@ -586,263 +611,87 @@ const EditVisitModal = ({ isOpen, onClose, visitData, onUpdateSuccess }: EditVis
                 </div>
               </div>
               
-              {/* Qualitative Assessment Section - Updated to use buttons */}
-              <div className="border-t pt-4 mt-6 space-y-6">
-                <h3 className="text-lg font-medium">Qualitative Assessment</h3>
+              {/* Qualitative Assessment Section */}
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold">Qualitative Assessment</h2>
                 
-                {/* Leaders aligned with code */}
-                <FormField
-                  control={form.control}
-                  name="leaders_aligned_with_code"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Do leaders conduct business/work that is aligned with company's code of conduct?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="flex gap-4"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Yes" id="leaders_aligned_yes" />
-                            <label 
-                              htmlFor="leaders_aligned_yes" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsUp className="h-4 w-4 text-green-600" />
-                              <span>Yes</span>
-                            </label>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <Label className="flex-1">Do leaders conduct business/work that is aligned with company's code of conduct?</Label>
+                    <YesNoToggle
+                      name="leadersAlignedWithCode"
+                      value={leadersAlignedWithCode}
+                      onChange={(value) => setLeadersAlignedWithCode(value)}
+                    />
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="No" id="leaders_aligned_no" />
-                            <label 
-                              htmlFor="leaders_aligned_no" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsDown className="h-4 w-4 text-red-600" />
-                              <span>No</span>
-                            </label>
+
+                  <div className="flex items-center justify-between gap-4">
+                    <Label className="flex-1">Do employees feel safe & secure at their workplace?</Label>
+                    <YesNoToggle
+                      name="employeesFeelSafe"
+                      value={employeesFeelSafe}
+                      onChange={(value) => setEmployeesFeelSafe(value)}
+                    />
                           </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {/* Employees feel safe */}
-                <FormField
-                  control={form.control}
-                  name="employees_feel_safe"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Do employees feel safe & secure at their workplace?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="flex gap-4"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Yes" id="feel_safe_yes" />
-                            <label 
-                              htmlFor="feel_safe_yes" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsUp className="h-4 w-4 text-green-600" />
-                              <span>Yes</span>
-                            </label>
+
+                  <div className="flex items-center justify-between gap-4">
+                    <Label className="flex-1">Do employees feel motivated at workplace?</Label>
+                    <YesNoToggle
+                      name="employeesFeelMotivated"
+                      value={employeesFeelMotivated}
+                      onChange={(value) => setEmployeesFeelMotivated(value)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between gap-4">
+                    <Label className="flex-1">Do leaders use abusive and rude language in meetings or on the floor or in person?</Label>
+                    <YesNoToggle
+                      name="leadersAbusiveLanguage"
+                      value={leadersAbusiveLanguage}
+                      onChange={(value) => setLeadersAbusiveLanguage(value)}
+                      inverseColors={true}
+                    />
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="No" id="feel_safe_no" />
-                            <label 
-                              htmlFor="feel_safe_no" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsDown className="h-4 w-4 text-red-600" />
-                              <span>No</span>
-                            </label>
+
+                  <div className="flex items-center justify-between gap-4">
+                    <Label className="flex-1">Do employees feel comfortable to escalate or raise malpractice or ethically wrong things?</Label>
+                    <YesNoToggle
+                      name="employeesComfortEscalation"
+                      value={employeesComfortEscalation}
+                      onChange={(value) => setEmployeesComfortEscalation(value)}
+                    />
                           </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {/* Employees feel motivated */}
-                <FormField
-                  control={form.control}
-                  name="employees_feel_motivated"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Do employees feel motivated at workplace?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="flex gap-4"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Yes" id="feel_motivated_yes" />
-                            <label 
-                              htmlFor="feel_motivated_yes" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsUp className="h-4 w-4 text-green-600" />
-                              <span>Yes</span>
-                            </label>
+
+                  <div className="flex items-center justify-between gap-4">
+                    <Label className="flex-1">Do employees feel workplace culture is inclusive with respect to caste, gender & religion?</Label>
+                    <YesNoToggle
+                      name="inclusiveCulture"
+                      value={inclusiveCulture}
+                      onChange={(value) => setInclusiveCulture(value)}
+                    />
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="No" id="feel_motivated_no" />
-                            <label 
-                              htmlFor="feel_motivated_no" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsDown className="h-4 w-4 text-red-600" />
-                              <span>No</span>
-                            </label>
                           </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {/* Leaders use abusive language */}
-                <FormField
-                  control={form.control}
-                  name="leaders_abusive_language"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Do leaders use abusive and rude language in meetings or on the floor or in person?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="flex gap-4"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Yes" id="abusive_language_yes" />
-                            <label 
-                              htmlFor="abusive_language_yes" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsDown className="h-4 w-4 text-red-600" />
-                              <span>Yes</span>
-                            </label>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="No" id="abusive_language_no" />
-                            <label 
-                              htmlFor="abusive_language_no" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsUp className="h-4 w-4 text-green-600" />
-                              <span>No</span>
-                            </label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {/* Employees comfortable with escalation */}
-                <FormField
-                  control={form.control}
-                  name="employees_comfort_escalation"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Do employees feel comfortable to escalate or raise malpractice or ethically wrong things?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="flex gap-4"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Yes" id="comfort_escalation_yes" />
-                            <label 
-                              htmlFor="comfort_escalation_yes" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsUp className="h-4 w-4 text-green-600" />
-                              <span>Yes</span>
-                            </label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="No" id="comfort_escalation_no" />
-                            <label 
-                              htmlFor="comfort_escalation_no" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsDown className="h-4 w-4 text-red-600" />
-                              <span>No</span>
-                            </label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                {/* Inclusive culture */}
-                <FormField
-                  control={form.control}
-                  name="inclusive_culture"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel>Do employees feel workplace culture is inclusive with respect to caste, gender & religion?</FormLabel>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          className="flex gap-4"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Yes" id="inclusive_culture_yes" />
-                            <label 
-                              htmlFor="inclusive_culture_yes" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsUp className="h-4 w-4 text-green-600" />
-                              <span>Yes</span>
-                            </label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="No" id="inclusive_culture_no" />
-                            <label 
-                              htmlFor="inclusive_culture_no" 
-                              className="flex items-center gap-1 cursor-pointer"
-                            >
-                              <ThumbsDown className="h-4 w-4 text-red-600" />
-                              <span>No</span>
-                            </label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
+
+              {/* Additional Remarks Section */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Additional Remarks</h2>
                 <FormField
                   control={form.control}
                   name="feedback"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Additional Feedback</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Enter any additional observations or feedback here..." 
-                          className="min-h-[120px]" 
+                          placeholder="Enter any additional remarks (optional)"
+                          className="resize-none min-h-[120px]"
                           {...field} 
+                          value={field.value || ""}
                         />
                       </FormControl>
+                      <FormDescription>
+                        Maximum 200 words
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

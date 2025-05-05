@@ -188,7 +188,7 @@ export async function fetchRecentReports(limit = 5): Promise<BranchVisitSummary[
         ),
         users:user_id (
           full_name,
-          employee_code
+          e_code
         )
       `)
       .order('created_at', { ascending: false })
@@ -199,7 +199,7 @@ export async function fetchRecentReports(limit = 5): Promise<BranchVisitSummary[
     const formattedData = data.map(report => ({
       ...report,
       bh_name: report.users ? report.users.full_name : 'Unknown',
-      bh_code: report.users ? report.users.employee_code : 'Unknown',
+      bh_code: report.users ? report.users.e_code : 'Unknown',
       branch_name: report.branches ? report.branches.name : 'Unknown',
       branch_location: report.branches ? report.branches.location : 'Unknown',
     }));
@@ -226,7 +226,7 @@ export async function fetchReportById(reportId: string): Promise<BranchVisitSumm
         ),
         users:user_id (
           full_name,
-          employee_code
+          e_code
         )
       `)
       .eq('id', reportId)
@@ -239,7 +239,7 @@ export async function fetchReportById(reportId: string): Promise<BranchVisitSumm
     const formattedData = {
       ...data,
       bh_name: data.users ? data.users.full_name : 'Unknown',
-      bh_code: data.users ? data.users.employee_code : 'Unknown',
+      bh_code: data.users ? data.users.e_code : 'Unknown',
       branch_name: data.branches ? data.branches.name : 'Unknown',
       branch_location: data.branches ? data.branches.location : 'Unknown',
     };
@@ -266,16 +266,34 @@ export async function fetchMonthlySummaryReport(year: number, month: number) {
           location,
           branch_code,
           category
+        ),
+        users:user_id (
+          full_name,
+          e_code
         )
       `)
       .gte('visit_date', startDate)
-      .lte('visit_date', endDate);
+      .lte('visit_date', endDate)
+      .in('status', ['submitted', 'approved']);
       
-    if (error) throw error;
+    if (error) {
+      console.error("Error fetching monthly summary report:", error);
+      throw error;
+    }
     
-    return data;
+    if (!data || data.length === 0) {
+      return [];
+    }
+    
+    return data.map(visit => ({
+      ...visit,
+      bh_name: visit.users?.full_name || 'Unknown',
+      bh_code: visit.users?.e_code || 'Unknown',
+      branch_name: visit.branches?.name || 'Unknown',
+      branch_location: visit.branches?.location || 'Unknown'
+    }));
   } catch (error) {
-    console.error("Error fetching monthly summary report:", error);
+    console.error("Error in fetchMonthlySummaryReport:", error);
     throw error;
   }
 }
@@ -284,23 +302,21 @@ export async function fetchCategoryBreakdown() {
   try {
     const { data, error } = await supabase
       .from("branches")
-      .select(`
-        category,
-        count
-      `)
-      .select();
+      .select("category");
     
     if (error) throw error;
     
+    // Aggregate counts by category
     const categoryBreakdown = data.reduce((acc: Record<string, number>, branch: any) => {
       const category = branch.category || 'Uncategorized';
       acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {});
     
-    return Object.entries(categoryBreakdown).map(([category, count]) => ({
-      category,
-      count: count as number
+    // Return in the format expected by the UI
+    return Object.entries(categoryBreakdown).map(([name, value]) => ({
+      name,
+      value
     }));
   } catch (error) {
     console.error("Error fetching category breakdown:", error);
@@ -323,7 +339,7 @@ export async function exportBranchVisitData(dateRange?: DateRange) {
         ),
         users:user_id (
           full_name,
-          employee_code
+          e_code
         )
       `);
     
@@ -363,7 +379,7 @@ export async function exportBHRPerformanceSummary() {
       
       return {
         bhr_name: bhr.full_name,
-        bhr_code: bhr.employee_code,
+        bhr_code: bhr.e_code,
         total_visits: visits.length,
         submitted_reports: visits.filter(v => v.status === 'submitted').length,
         approved_reports: visits.filter(v => v.status === 'approved').length,
@@ -394,7 +410,7 @@ export async function exportBranchAssignments() {
         users:user_id (
           id,
           full_name,
-          employee_code
+          e_code
         )
       `);
       
@@ -402,7 +418,7 @@ export async function exportBranchAssignments() {
     
     return data.map(assignment => ({
       bhr_name: assignment.users?.full_name || 'Unknown',
-      bhr_code: assignment.users?.employee_code || 'Unknown',
+      bhr_code: assignment.users?.e_code || 'Unknown',
       branch_name: assignment.branches?.name || 'Unknown',
       branch_location: assignment.branches?.location || 'Unknown',
       branch_code: assignment.branches?.branch_code || 'Unknown',
@@ -411,6 +427,54 @@ export async function exportBranchAssignments() {
     }));
   } catch (error) {
     console.error("Error exporting branch assignments:", error);
+    throw error;
+  }
+}
+
+export async function fetchCategoryStatsByMonth(year: number, month: number) {
+  try {
+    const startDate = new Date(year, month - 1, 1).toISOString();
+    const endDate = new Date(year, month, 0).toISOString();
+    const { data, error } = await supabase
+      .from("branch_visits")
+      .select(`branch_category, manning_percentage, attrition_percentage`)
+      .gte('visit_date', startDate)
+      .lte('visit_date', endDate)
+      .in('status', ['submitted', 'approved']);
+    if (error) throw error;
+
+    // Get number of branches per category from branches table
+    const { data: branches, error: branchesError } = await supabase
+      .from("branches")
+      .select("category");
+    if (branchesError) throw branchesError;
+    const branchCounts = branches.reduce((acc: Record<string, number>, branch: any) => {
+      const cat = branch.category || 'Uncategorized';
+      acc[cat] = (acc[cat] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Aggregate by category
+    type StatAgg = { visits: number; manningSum: number; attritionSum: number };
+    const stats: Record<string, StatAgg> = {};
+    data.forEach(row => {
+      const cat = row.branch_category || 'Uncategorized';
+      if (!stats[cat]) {
+        stats[cat] = { visits: 0, manningSum: 0, attritionSum: 0 };
+      }
+      stats[cat].visits += 1;
+      stats[cat].manningSum += row.manning_percentage || 0;
+      stats[cat].attritionSum += row.attrition_percentage || 0;
+    });
+    return Object.entries(stats).map(([name, obj]) => ({
+      name,
+      visits: obj.visits,
+      avgManning: obj.visits ? Math.round(obj.manningSum / obj.visits) : 0,
+      avgAttrition: obj.visits ? Math.round(obj.attritionSum / obj.visits) : 0,
+      branchCount: branchCounts[name] || 0
+    }));
+  } catch (error) {
+    console.error("Error fetching category stats by month:", error);
     throw error;
   }
 }

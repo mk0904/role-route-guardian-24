@@ -662,37 +662,28 @@ export const fetchTopPerformers = async (): Promise<TopPerformer[]> => {
 
 export const fetchCategoryBreakdown = async (): Promise<CategoryCount[]> => {
   try {
-    console.log("Fetching category breakdown from branches...");
-    
     // Get all branch visits with branch information
     const { data: visits, error: visitsError } = await supabase
       .from('branch_visits')
-      .select(`
-        id,
-        branch_id,
-        branches:branch_id (
-          category
-        )
-      `)
-      .in('status', ['submitted', 'approved']) as { data: BranchVisit[] | null, error: any };
-    
+      .select('branch_id, branches:branch_id (category)')
+      .in('status', ['submitted', 'approved']);
+
     if (visitsError) throw visitsError;
     if (!visits || visits.length === 0) return [];
-    
-    // Count branch categories from visit data
-    const categoryCounts: Record<string, number> = {};
-    
+
+    // Count unique branch_ids per sanitized category
+    const categoryBranchSet: Record<string, Set<string>> = {};
     visits.forEach(visit => {
-      if (!visit.branches?.category) return;
-      
-      const category = visit.branches.category.charAt(0).toUpperCase() + visit.branches.category.slice(1).toLowerCase();
-      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+      const raw = visit.branches?.category ? visit.branches.category.trim().toLowerCase() : 'unknown';
+      const displayCategory = raw.charAt(0).toUpperCase() + raw.slice(1);
+      if (!categoryBranchSet[displayCategory]) categoryBranchSet[displayCategory] = new Set();
+      categoryBranchSet[displayCategory].add(visit.branch_id);
     });
-    
+
     // Format the results
-    return Object.entries(categoryCounts).map(([name, value]) => ({
+    return Object.entries(categoryBranchSet).map(([name, set]) => ({
       name,
-      value
+      value: set.size
     }));
   } catch (error) {
     console.error("Error fetching category breakdown:", error);

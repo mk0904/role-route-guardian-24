@@ -23,13 +23,13 @@ export function YesNoToggle({ value, onChange, name, label, inverseColors = fals
             value === true
               ? inverseColors 
                 ? "bg-red-100 text-red-700 border-2 border-red-300" 
-                : "bg-purple-100 text-purple-700 border-2 border-purple-300"
+                : "bg-green-100 text-green-700 border-2 border-green-300"
               : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
           }`}
         >
           <Check className={`h-4 w-4 ${
             value === true 
-              ? inverseColors ? "text-red-500" : "text-purple-500" 
+              ? inverseColors ? "text-red-500" : "text-green-500" 
               : "text-gray-400"
           }`} />
           Yes

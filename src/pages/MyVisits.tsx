@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -227,7 +226,10 @@ const MyVisits = () => {
       <Card className="mb-8">
         <CardContent className="p-5">
           <div className="flex flex-col gap-4">
-            <div className="relative w-full">
+            {/* Responsive Filters Row */}
+            <div className="flex flex-col md:flex-row md:items-center md:gap-4 md:space-y-0 space-y-4">
+              {/* Search (full width on mobile, auto on desktop) */}
+              <div className="relative w-full md:w-1/3">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
               <Input
                 placeholder="Search by branch name, location..."
@@ -236,8 +238,8 @@ const MyVisits = () => {
                 className="pl-10"
               />
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Dropdowns (side by side on mobile/desktop) */}
+              <div className="flex flex-row gap-4 w-full md:w-2/3">
               <Select value={monthFilter} onValueChange={setMonthFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Months" />
@@ -249,7 +251,6 @@ const MyVisits = () => {
                   ))}
                 </SelectContent>
               </Select>
-
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Categories" />
@@ -261,18 +262,34 @@ const MyVisits = () => {
                   ))}
                 </SelectContent>
               </Select>
-              
-              <div className="w-full">
+              </div>
+            </div>
+            {/* Tabs Row (always in its own row, spaced between) */}
+            <div className="flex flex-row w-full justify-between">
                 <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
                   <TabsList className="grid w-full grid-cols-5">
-                    <TabsTrigger value="all">All</TabsTrigger>
-                    <TabsTrigger value="submitted">Submitted</TabsTrigger>
-                    <TabsTrigger value="approved">Approved</TabsTrigger>
-                    <TabsTrigger value="rejected">Rejected</TabsTrigger>
-                    <TabsTrigger value="draft">Draft</TabsTrigger>
+                  <TabsTrigger value="all">
+                    <FileText className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">All</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="submitted">
+                    <Eye className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">Submitted</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="approved">
+                    <Check className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">Approved</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="rejected">
+                    <Trash2 className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">Rejected</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="draft">
+                    <Clock className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">Draft</span>
+                  </TabsTrigger>
                   </TabsList>
                 </Tabs>
-              </div>
             </div>
           </div>
         </CardContent>

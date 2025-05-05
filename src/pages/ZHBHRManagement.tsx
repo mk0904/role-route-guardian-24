@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Eye, MapPin, User } from "lucide-react";
+import { Search, Filter, Eye, MapPin, User, FileText } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BHRDetailsModal from "@/components/zh/BHRDetailsModal";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -71,8 +71,8 @@ const ZHBHRManagement = () => {
   return (
     <div className="px-6 py-8 md:px-8 lg:px-10 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">BHR Management</h1>
-        <p className="text-slate-500 mt-2 text-lg">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1">BHR Management</h1>
+        <p className="text-slate-600">
           View and manage Branch Head Representatives in your zone
         </p>
       </div>
@@ -86,12 +86,12 @@ const ZHBHRManagement = () => {
                 placeholder="Search by name or employee code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-slate-200 focus:border-blue-400 transition-colors rounded-lg bg-slate-50 focus:bg-white"
+                className="pl-10 transition-colors rounded-lg bg-slate-50 focus:bg-white"
               />
             </div>
             <div className="w-full md:w-60">
               <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger className="flex items-center border-slate-200 rounded-lg bg-slate-50 hover:bg-white focus:border-blue-400 transition-all">
+                <SelectTrigger className="flex items-center border-slate-200 rounded-lg bg-slate-50 hover:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all">
                   <Filter className="h-4 w-4 mr-2 text-blue-500" />
                   <SelectValue placeholder="Filter by location" />
                 </SelectTrigger>
@@ -150,77 +150,109 @@ interface BHRCardProps {
   onViewDetails: () => void;
 }
 
+const getRandomAvatarColor = (name: string) => {
+  const colors = [
+    'from-blue-600 to-blue-400',
+    'from-emerald-600 to-emerald-400',
+    'from-violet-600 to-violet-400',
+    'from-rose-600 to-rose-400',
+    'from-amber-600 to-amber-400',
+    'from-teal-600 to-teal-400',
+    'from-indigo-600 to-indigo-400',
+    'from-pink-600 to-pink-400',
+    'from-cyan-600 to-cyan-400',
+    'from-purple-600 to-purple-400'
+  ];
+  const charCode = (name?.charAt(0) || 'A').charCodeAt(0);
+  const colorIndex = charCode % colors.length;
+  return colors[colorIndex];
+};
+
 const BHRCard = ({ bhr, onViewDetails }: BHRCardProps) => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['bhr-stats', bhr.id],
     queryFn: async () => await fetchBHRReportStats(bhr.id),
   });
 
+  const avatarColor = getRandomAvatarColor(bhr.full_name);
+
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 border-0 shadow-md rounded-xl bg-gradient-to-b from-white to-slate-50">
+    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border border-slate-100 shadow-sm rounded-xl bg-white">
       <CardContent className="p-0">
-        <div className="p-6 pb-4">
-          <div className="flex items-center gap-4 mb-4">
-            <Avatar className="h-16 w-16 bg-gradient-to-br from-blue-600 to-blue-500 text-white text-xl shadow-md">
-              <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-500 text-lg font-semibold">
-                {bhr.full_name?.charAt(0) || 'B'}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="text-xl font-semibold text-slate-800">{bhr.full_name}</h3>
-              <p className="text-slate-500 font-medium">{bhr.e_code || 'No Employee Code'}</p>
+        <div className="p-5">
+          {/* Header with Avatar, Name, and Location */}
+          <div className="flex items-start justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <Avatar className={`h-14 w-14 ring-2 ring-slate-100 bg-gradient-to-br ${avatarColor} text-white text-base shadow-sm`}>
+                <AvatarFallback className={`bg-gradient-to-br ${avatarColor} text-base font-medium`}>
+                  {(bhr.full_name?.charAt(0) || 'B').toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="text-base font-semibold text-slate-800 group-hover:text-slate-900 transition-colors">
+                  {bhr.full_name}
+                </h3>
+                <p className="text-sm text-slate-500">{bhr.e_code || 'No Employee Code'}</p>
+              </div>
+            </div>
+            {/* Location Badge - Moved to top right */}
+            <div className="flex items-center text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
+              <MapPin className="h-3.5 w-3.5 mr-1 text-slate-400" />
+              <span className="text-xs">{bhr.location || 'No location'}</span>
             </div>
           </div>
           
-          <div className="flex items-center text-slate-600 mb-5 bg-slate-100 px-3 py-2 rounded-lg">
-            <MapPin className="h-4 w-4 mr-2 text-blue-500" />
-            <span className="font-medium">{bhr.location || 'No location assigned'}</span>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
-              <p className="text-sm text-blue-600 mb-1 font-medium">Branches Mapped</p>
-              <p className="text-3xl font-bold text-blue-700">{bhr.branches_assigned}</p>
+          {/* Main Stats */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <div className="bg-gradient-to-br from-slate-50 to-white p-3 rounded-lg border border-slate-100">
+              <p className="text-xs text-slate-600 mb-1 flex items-center">
+                <User className="h-3.5 w-3.5 mr-1 opacity-70" />
+                Branches Mapped
+              </p>
+              <p className="text-2xl font-semibold text-slate-700">{bhr.branches_assigned}</p>
             </div>
-            <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-              <p className="text-sm text-indigo-600 mb-1 font-medium">Reports submitted</p>
-              <p className="text-3xl font-bold text-indigo-700">
+            <div className="bg-gradient-to-br from-sky-50 to-white p-3 rounded-lg border border-sky-100">
+              <p className="text-xs text-sky-600 mb-1 flex items-center">
+                <FileText className="h-3.5 w-3.5 mr-1 opacity-70" />
+                Reports
+              </p>
+              <p className="text-2xl font-semibold text-sky-700">
                 {isLoading ? "..." : stats?.total || 0}
               </p>
             </div>
           </div>
           
-          <div className="grid grid-cols-3 gap-2 mb-6">
-            <div className="bg-green-50 p-2 rounded-lg text-center border border-green-100">
-              <p className="text-sm font-medium text-green-700">Approved</p>
-              <p className="text-xl font-bold text-green-700">
+          {/* Report Status Grid */}
+          <div className="grid grid-cols-3 gap-2 mb-5">
+            <div className="bg-gradient-to-br from-green-50 to-white p-2.5 rounded-lg text-center border border-teal-100/50">
+              <p className="text-xs font-medium text-teal-700 mb-0.5">Approved</p>
+              <p className="text-lg font-semibold text-teal-800">
                 {isLoading ? "..." : stats?.approved || 0}
               </p>
             </div>
-            <div className="bg-blue-50 p-2 rounded-lg text-center border border-blue-100">
-              <p className="text-sm font-medium text-blue-700">submitted</p>
-              <p className="text-xl font-bold text-blue-700">
+            <div className="bg-gradient-to-br from-yellow-50 to-white p-2.5 rounded-lg text-center border border-yellow-100/50">
+              <p className="text-xs font-medium text-yellow-700 mb-0.5">Pending</p>
+              <p className="text-lg font-semibold text-yellow-800">
                 {isLoading ? "..." : stats?.submitted || 0}
               </p>
             </div>
-            <div className="bg-red-50 p-2 rounded-lg text-center border border-red-100">
-              <p className="text-sm font-medium text-red-700">Rejected</p>
-              <p className="text-xl font-bold text-red-700">
+            <div className="bg-gradient-to-br from-red-50 to-white p-2.5 rounded-lg text-center border border-red-100/50">
+              <p className="text-xs font-medium text-red-600 mb-0.5">Rejected</p>
+              <p className="text-lg font-semibold text-red-700">
                 {isLoading ? "..." : stats?.rejected || 0}
               </p>
             </div>
           </div>
           
-          <div className="border-t pt-4 flex justify-center">
-            <Button 
-              variant="outline" 
-              onClick={onViewDetails} 
-              className="w-full bg-white hover:bg-blue-50 text-blue-700 border-blue-200 hover:border-blue-400 font-medium"
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View Details
-            </Button>
-          </div>
+          {/* View Details Button */}
+          <Button 
+            variant="outline" 
+            onClick={onViewDetails} 
+            className="w-full bg-white hover:bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300 text-sm font-medium transition-all duration-300"
+          >
+            <Eye className="h-3.5 w-3.5 mr-1.5" />
+            View Details
+          </Button>
         </div>
       </CardContent>
     </Card>

@@ -33,6 +33,8 @@ const AppRoutes = () => (
     <Route path="/auth" element={<Auth />} />
     <Route path="/dashboard" element={<Dashboard />} />
     <Route path="/admin/dashboard" element={<AdminDashboard />} />
+    <Route path="visits" element={<MyVisits />} />
+
     
     {/* BH routes with layout */}
     <Route path="/bh" element={<BHDashboardLayout />}>

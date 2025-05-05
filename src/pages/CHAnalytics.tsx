@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -14,7 +13,7 @@ import {
   CartesianGrid, 
   Tooltip, 
   Legend,
-  BarChart,
+  BarChart as ReBarChart,
   Bar,
   PieChart,
   Pie,
@@ -32,7 +31,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
-import { ChevronDown, ChevronUp, Calendar, Check, Star } from "lucide-react";
+import { ChevronDown, ChevronUp, Calendar, Check, Star, TrendingUp, BarChart } from "lucide-react";
 import { fetchQualitativeAssessments, fetchCategoryBreakdown } from "@/services/analyticsService";
 
 // Define date range type
@@ -44,6 +43,33 @@ const PERIOD_OPTIONS = [
   { label: "Last 3 Months", value: "lastQuarter" },
   { label: "Last 6 Months", value: "lastSixMonths" },
   { label: "Last Year", value: "lastYear" }
+];
+
+// Add dark gradients for pie chart categories (same as CHDashboard)
+const CATEGORY_GRADIENTS = [
+  { id: 'platinum-gradient', from: '#a78bfa', to: '#6d28d9' },
+  { id: 'diamond-gradient', from: '#60a5fa', to: '#1e3a8a' },
+  { id: 'gold-gradient', from: '#facc15', to: '#b45309' },
+  { id: 'silver-gradient', from: '#cbd5e1', to: '#334155' },
+  { id: 'bronze-gradient', from: '#fdba74', to: '#b45309' },
+  { id: 'unknown-gradient', from: '#cbd5e1', to: '#64748b' },
+];
+const CATEGORY_GRADIENT_MAP: Record<string, string> = {
+  platinum: 'platinum-gradient',
+  diamond: 'diamond-gradient',
+  gold: 'gold-gradient',
+  silver: 'silver-gradient',
+  bronze: 'bronze-gradient',
+  unknown: 'unknown-gradient',
+};
+
+// Define darker gradients for bar chart metrics
+const BAR_GRADIENTS = [
+  { id: 'manning-bar', from: '#60a5fa', to: '#1e3a8a' },      // blue: mid to deep
+  { id: 'attrition-bar', from: '#f87171', to: '#b91c1c' },   // red: mid to deep
+  { id: 'er-bar', from: '#34d399', to: '#065f46' },          // green: mid to deep
+  { id: 'nonvendor-bar', from: '#a78bfa', to: '#6d28d9' },   // purple: mid to deep
+  { id: 'cwt-bar', from: '#facc15', to: '#b45309' },         // gold: mid to deep
 ];
 
 const CHAnalytics = () => {
@@ -87,6 +113,9 @@ const CHAnalytics = () => {
   // State for category breakdown
   const [categoryBreakdown, setCategoryBreakdown] = useState([]);
   const [isCategoryLoading, setIsCategoryLoading] = useState(true);
+
+  // Add a state variable to track which line was just toggled on
+  const [toggledLine, setToggledLine] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -200,6 +229,24 @@ const CHAnalytics = () => {
   // Colors for category breakdown pie chart
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
 
+  // Add custom toggle handlers for each metric
+  const handleManningToggle = (checked: boolean) => {
+    setShowManning(checked);
+    setToggledLine(checked ? 'manning' : null);
+  };
+  const handleAttritionToggle = (checked: boolean) => {
+    setShowAttrition(checked);
+    setToggledLine(checked ? 'attrition' : null);
+  };
+  const handleErToggle = (checked: boolean) => {
+    setShowEr(checked);
+    setToggledLine(checked ? 'er' : null);
+  };
+  const handleNonVendorToggle = (checked: boolean) => {
+    setShowNonVendor(checked);
+    setToggledLine(checked ? 'nonVendor' : null);
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
@@ -208,24 +255,28 @@ const CHAnalytics = () => {
       </div>
       
       <Card className="mb-8">
-        <CardHeader className="border-b">
-          <CardTitle className="text-2xl">Analytics Dashboard</CardTitle>
-        </CardHeader>
-        
         <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-3 w-full md:w-auto mb-6">
-              <TabsTrigger value="performance">Performance Trends</TabsTrigger>
-              <TabsTrigger value="categories">Category Analysis</TabsTrigger>
-              <TabsTrigger value="quality">Quality Assessment</TabsTrigger>
+              <TabsTrigger value="performance">
+                <TrendingUp className="h-5 w-5" />
+                <span className="hidden md:inline ml-1">Performance Trends</span>
+              </TabsTrigger>
+              <TabsTrigger value="categories">
+                <BarChart className="h-5 w-5" />
+                <span className="hidden md:inline ml-1">Category Analysis</span>
+              </TabsTrigger>
+              <TabsTrigger value="quality">
+                <Star className="h-5 w-5" />
+                <span className="hidden md:inline ml-1">Quality Assessment</span>
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="performance">
               <div className="space-y-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <h3 className="text-xl font-medium">Performance Trends</h3>
-                  
-                  <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
+                    <h3 className="text-xl font-medium mb-2 md:mb-0">Performance Trends</h3>
                     <ToggleGroup 
                       type="single" 
                       value={selectedPeriod}
@@ -244,39 +295,36 @@ const CHAnalytics = () => {
                       ))}
                     </ToggleGroup>
                   </div>
-                </div>
-                
-                <div className="mb-4 flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2">
-                    <Switch id="manning-toggle" checked={showManning} onCheckedChange={setShowManning} />
-                    <Label htmlFor="manning-toggle" className="text-sm cursor-pointer">
+                  {/* Toggler Switches */}
+                  <div className="flex flex-wrap gap-2 md:gap-4 items-center md:justify-end">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Switch id="manning-toggle" checked={showManning} onCheckedChange={handleManningToggle} className="scale-90 md:scale-100" />
+                      <Label htmlFor="manning-toggle" className="text-xs md:text-sm cursor-pointer">
                       <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-1"></span>
                       Manning %
                     </Label>
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Switch id="attrition-toggle" checked={showAttrition} onCheckedChange={setShowAttrition} />
-                    <Label htmlFor="attrition-toggle" className="text-sm cursor-pointer">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Switch id="attrition-toggle" checked={showAttrition} onCheckedChange={handleAttritionToggle} className="scale-90 md:scale-100" />
+                      <Label htmlFor="attrition-toggle" className="text-xs md:text-sm cursor-pointer">
                       <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-1"></span>
                       Attrition %
                     </Label>
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Switch id="er-toggle" checked={showEr} onCheckedChange={setShowEr} />
-                    <Label htmlFor="er-toggle" className="text-sm cursor-pointer">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Switch id="er-toggle" checked={showEr} onCheckedChange={handleErToggle} className="scale-90 md:scale-100" />
+                      <Label htmlFor="er-toggle" className="text-xs md:text-sm cursor-pointer">
                       <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-1"></span>
                       ER %
                     </Label>
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Switch id="non-vendor-toggle" checked={showNonVendor} onCheckedChange={setShowNonVendor} />
-                    <Label htmlFor="non-vendor-toggle" className="text-sm cursor-pointer">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Switch id="non-vendor-toggle" checked={showNonVendor} onCheckedChange={handleNonVendorToggle} className="scale-90 md:scale-100" />
+                      <Label htmlFor="non-vendor-toggle" className="text-xs md:text-sm cursor-pointer">
                       <span className="inline-block w-3 h-3 rounded-full bg-purple-500 mr-1"></span>
                       Non-Vendor %
                     </Label>
+                    </div>
                   </div>
                 </div>
                 
@@ -303,16 +351,48 @@ const CHAnalytics = () => {
                       <Tooltip />
                       <Legend />
                       {showManning && (
-                        <Line type="monotone" dataKey="manning" name="Manning %" stroke="#3b82f6" strokeWidth={2} />
+                        <Line
+                          key="manning"
+                          isAnimationActive={toggledLine === 'manning'}
+                          type="monotone"
+                          dataKey="manning"
+                          name="Manning %"
+                          stroke="#3b82f6"
+                          strokeWidth={2}
+                        />
                       )}
                       {showAttrition && (
-                        <Line type="monotone" dataKey="attrition" name="Attrition %" stroke="#ef4444" strokeWidth={2} />
+                        <Line
+                          key="attrition"
+                          isAnimationActive={toggledLine === 'attrition'}
+                          type="monotone"
+                          dataKey="attrition"
+                          name="Attrition %"
+                          stroke="#ef4444"
+                          strokeWidth={2}
+                        />
                       )}
                       {showEr && (
-                        <Line type="monotone" dataKey="er" name="ER %" stroke="#10b981" strokeWidth={2} />
+                        <Line
+                          key="er"
+                          isAnimationActive={toggledLine === 'er'}
+                          type="monotone"
+                          dataKey="er"
+                          name="ER %"
+                          stroke="#10b981"
+                          strokeWidth={2}
+                        />
                       )}
                       {showNonVendor && (
-                        <Line type="monotone" dataKey="nonVendor" name="Non-Vendor %" stroke="#8b5cf6" strokeWidth={2} />
+                        <Line
+                          key="nonVendor"
+                          isAnimationActive={toggledLine === 'nonVendor'}
+                          type="monotone"
+                          dataKey="nonVendor"
+                          name="Non-Vendor %"
+                          stroke="#8b5cf6"
+                          strokeWidth={2}
+                        />
                       )}
                     </LineChart>
                   </ResponsiveContainer>
@@ -378,14 +458,6 @@ const CHAnalytics = () => {
                           CWT Cases
                         </Label>
                       </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Switch id="cwt-category-toggle" checked={showCwtCategory} onCheckedChange={setShowCwtCategory} />
-                        <Label htmlFor="cwt-category-toggle" className="text-sm cursor-pointer">
-                          <span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-1"></span>
-                          CWT
-                        </Label>
-                      </div>
                     </div>
                     
                     {isLoading ? (
@@ -404,7 +476,7 @@ const CHAnalytics = () => {
                         }}
                       >
                         <ResponsiveContainer width="100%" height={350}>
-                          <BarChart 
+                          <ReBarChart 
                             data={categoryMetrics}
                             margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
                           >
@@ -417,21 +489,43 @@ const CHAnalytics = () => {
                               interval={0}
                             />
                             <YAxis />
-                            <Tooltip />
+                            <Tooltip
+                              formatter={(value, name) => {
+                                const metricLabels: Record<string, string> = {
+                                  manning: "Manning",
+                                  attrition: "Attrition",
+                                  er: "ER",
+                                  nonVendor: "Non-Vendor",
+                                  cwt: "CWT Cases"
+                                };
+                                return [`${typeof value === 'number' ? value.toFixed(1) : value}%`, metricLabels[name] || name];
+                              }}
+                            />
                             <Legend />
+                            <defs>
+                              {BAR_GRADIENTS.map(grad => (
+                                <linearGradient key={grad.id} id={grad.id} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor={grad.from} />
+                                  <stop offset="100%" stopColor={grad.to} />
+                                </linearGradient>
+                              ))}
+                            </defs>
                             {showManningCategory && (
-                              <Bar dataKey="manning" name="Manning" fill="#3b82f6" />
+                              <Bar dataKey="manning" name="Manning" fill="url(#manning-bar)" />
                             )}
                             {showAttritionCategory && (
-                              <Bar dataKey="attrition" name="Attrition" fill="#ef4444" />
+                              <Bar dataKey="attrition" name="Attrition" fill="url(#attrition-bar)" />
                             )}
                             {showErCategory && (
-                              <Bar dataKey="er" name="ER" fill="#10b981" />
+                              <Bar dataKey="er" name="ER" fill="url(#er-bar)" />
+                            )}
+                            {showNonVendorCategory && (
+                              <Bar dataKey="nonVendor" name="Non-Vendor" fill="url(#nonvendor-bar)" />
                             )}
                             {showCwtCategory && (
-                              <Bar dataKey="cwt" name="CWT" fill="#ca8a04" />
+                              <Bar dataKey="cwt" name="CWT Cases" fill="url(#cwt-bar)" />
                             )}
-                          </BarChart>
+                          </ReBarChart>
                         </ResponsiveContainer>
                       </ChartContainer>
                     ) : (
@@ -452,6 +546,14 @@ const CHAnalytics = () => {
                     ) : categoryBreakdown && categoryBreakdown.length > 0 ? (
                       <ResponsiveContainer width="100%" height={300}>
                         <PieChart>
+                          <defs>
+                            {CATEGORY_GRADIENTS.map(grad => (
+                              <linearGradient key={grad.id} id={grad.id} x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stopColor={grad.from} />
+                                <stop offset="100%" stopColor={grad.to} />
+                              </linearGradient>
+                            ))}
+                          </defs>
                           <Pie
                             data={categoryBreakdown}
                             cx="50%"
@@ -462,13 +564,15 @@ const CHAnalytics = () => {
                             fill="#8884d8"
                             dataKey="value"
                           >
-                            {categoryBreakdown.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
+                            {categoryBreakdown.map((entry, index) => {
+                              const cat = entry.name?.toLowerCase() || 'unknown';
+                              const gradId = CATEGORY_GRADIENT_MAP[cat] || CATEGORY_GRADIENT_MAP.unknown;
+                              return (
+                                <Cell key={`cell-${index}`} fill={`url(#${gradId})`} />
+                              );
+                            })}
                           </Pie>
-                          <Tooltip
-                            formatter={(value, name) => [`${value} branches`, name]}
-                          />
+                          <Tooltip formatter={(value, name) => [`${value} branches`, name]} />
                         </PieChart>
                       </ResponsiveContainer>
                     ) : (
@@ -517,9 +621,9 @@ const CHAnalytics = () => {
                           <Tooltip formatter={(value, name, props) => {
                             const entry = props.payload;
                             if (entry && entry.type === 'rating') {
-                              return [`${value.toFixed(1)}/5`, 'Rating'];
+                              return [`${typeof value === 'number' ? value.toFixed(1) : value}/5`, 'Rating'];
                             }
-                            return [`${value.toFixed(1)}%`, 'Yes Responses'];
+                            return [`${typeof value === 'number' ? value.toFixed(1) : value}%`, 'Yes Responses'];
                           }} />
                         </RadarChart>
                       </ResponsiveContainer>

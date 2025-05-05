@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, CalendarIcon, Check, X, Trash2, Clock, MapPin } from "lucide-react";
+import { Search, CalendarIcon, Check, X, Trash2, Clock, MapPin, FileText, Eye } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
@@ -414,17 +413,17 @@ const ZHReviewReports = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
         <h1 className="text-3xl font-bold">Review Branch Visit Reports</h1>
-        <p className="text-slate-600 mt-1">
-          Manage and review branch visit reports submitted by BHRs
-        </p>
+          <p className="text-slate-600 mt-1">Manage and review branch visit reports submitted by BHRs</p>
+        </div>
       </div>
 
       <Card className="mb-6 hover:shadow-md transition-shadow">
         <CardContent className="p-5">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-4 md:space-y-0">
+            <div className="relative w-full md:w-1/2 md:max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
               <Input
                 placeholder="Search by branch name, location or BHR name..."
@@ -436,11 +435,26 @@ const ZHReviewReports = () => {
             <div className="w-full md:w-auto">
               <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
                 <TabsList className="grid w-full grid-cols-5">
-                  <TabsTrigger value="all" className="text-xs md:text-sm">All</TabsTrigger>
-                  <TabsTrigger value="submitted" className="text-xs md:text-sm">submitted</TabsTrigger>
-                  <TabsTrigger value="approved" className="text-xs md:text-sm">Approved</TabsTrigger>
-                  <TabsTrigger value="rejected" className="text-xs md:text-sm">Rejected</TabsTrigger>
-                  <TabsTrigger value="draft" className="text-xs md:text-sm">Draft</TabsTrigger>
+                  <TabsTrigger value="all">
+                    <FileText className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">All</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="submitted">
+                    <Eye className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">Submitted</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="approved">
+                    <Check className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">Approved</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="rejected">
+                    <Trash2 className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">Rejected</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="draft">
+                    <Clock className="h-5 w-5" />
+                    <span className="hidden md:inline ml-1">Draft</span>
+                  </TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>

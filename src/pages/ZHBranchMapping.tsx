@@ -18,15 +18,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -353,15 +351,11 @@ const ZHBranchMapping = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-1">Branch Mapping</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1">Branch Mapping</h1>
         <p className="text-slate-600">Assign branches to Branch Head Representatives (BHRs)</p>
       </div>
       
       <Card className="mb-6 hover:shadow-md transition-shadow">
-        <CardHeader className="pb-2 bg-slate-50 border-b">
-          <CardTitle>Branches</CardTitle>
-          <CardDescription>Manage branch assignments for your zone</CardDescription>
-        </CardHeader>
         <CardContent className="pt-4">
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="relative flex-1 min-w-0">
@@ -375,7 +369,7 @@ const ZHBranchMapping = () => {
             </div>
             <div className="w-full md:w-48">
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="flex items-center border-slate-200 rounded-lg bg-slate-50 hover:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all">
                   <SelectValue placeholder="Filter by category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -398,7 +392,7 @@ const ZHBranchMapping = () => {
                   <TableHead>Location</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Assigned BHRs</TableHead>
-                  <TableHead className="text-right w-[100px]">Actions</TableHead>
+                  <TableHead className="text-right w-[100px] sticky right-0 bg-white z-10">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -442,15 +436,15 @@ const ZHBranchMapping = () => {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right sticky right-0 bg-white z-10">
                         <Button 
                           variant="outline" 
                           size="sm" 
                           onClick={() => handleOpenAssignDialog(branch)}
                           className="bg-slate-100 hover:bg-slate-200"
                         >
-                          <Plus className="h-3.5 w-3.5 mr-1" />
-                          Assign
+                          <Plus className="h-3.5 w-3.5" />
+                          <span className="hidden md:inline ml-1">Assign</span>
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -472,17 +466,17 @@ const ZHBranchMapping = () => {
       </Card>
       
       {/* Dialogs for assigning/unassigning */}
-      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogContent className="max-w-md">
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-md rounded-lg p-4">
+          <div className="flex flex-col space-y-4">
           {dialogType === "assign" ? (
             <>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Assign Branch to BHR</AlertDialogTitle>
-                <AlertDialogDescription>
+                <DialogHeader>
+                  <DialogTitle>Assign Branch to BHR</DialogTitle>
+                  <DialogDescription>
                   Select a BHR to assign to {selectedBranch?.name}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="py-4">
+                  </DialogDescription>
+                </DialogHeader>
                 <Select value={selectedBHUser || ""} onValueChange={setSelectedBHUser}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a BHR" />
@@ -495,33 +489,33 @@ const ZHBranchMapping = () => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleConfirmDialog} disabled={!selectedBHUser} className="bg-blue-600 hover:bg-blue-700">
+                <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <Button onClick={handleConfirmDialog} disabled={!selectedBHUser} className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
                   Assign
-                </AlertDialogAction>
-              </AlertDialogFooter>
+                  </Button>
+                  <Button variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto">Cancel</Button>
+                </DialogFooter>
             </>
           ) : (
             <>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Unassign Branch</AlertDialogTitle>
-                <AlertDialogDescription>
+                <DialogHeader>
+                  <DialogTitle>Unassign Branch</DialogTitle>
+                  <DialogDescription>
                   Are you sure you want to unassign <span className="font-medium">{selectedBranchForUnassign?.branchName}</span> from <span className="font-medium">{selectedBranchForUnassign?.bhName}</span>?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleConfirmDialog} className="bg-red-600 hover:bg-red-700">
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <Button onClick={handleConfirmDialog} className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto">
                   <X className="mr-2 h-4 w-4" />
                   Unassign
-                </AlertDialogAction>
-              </AlertDialogFooter>
+                  </Button>
+                  <Button variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto">Cancel</Button>
+                </DialogFooter>
             </>
           )}
-        </AlertDialogContent>
-      </AlertDialog>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

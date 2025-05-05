@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { FilePlus, Users, Calendar, ClipboardCheck, TrendingUp, Building2 } from "lucide-react";
+import { FilePlus, Users, Calendar, ClipboardCheck, TrendingUp, Building2, FileText, Eye, Check, Trash2, Clock } from "lucide-react";
 import { 
   getBranchVisitStats, 
   getBranchCategoryCoverage,
@@ -19,6 +19,7 @@ import {
 } from "@/services/branchService";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type BranchCategoryStats = {
   category: string;
@@ -212,26 +213,21 @@ const BHDashboard = () => {
                     <h4 className="text-sm font-medium text-slate-600 mb-4">Branch Categories</h4>
                     <div className="space-y-4">
                       {branchCategories.map((cat) => {
-                        // Get color class based on category
-                        const colorClass = {
-                          'urban': 'bg-blue-500',
-                          'semi-urban': 'bg-emerald-500',
-                          'rural': 'bg-purple-500',
-                          'metro': 'bg-orange-500'
-                        }[cat.category.toLowerCase()] || 'bg-slate-500';
+                        // Extract the first bg-* class from cat.color
+                        const bgClass = cat.color.split(' ').find(c => c.startsWith('bg-')) || 'bg-slate-500';
                         
                         return (
                           <div key={cat.category}>
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2">
-                                <div className={`w-3 h-3 rounded-full ${colorClass}`} />
+                                <div className={`w-3 h-3 rounded-full ${bgClass}`} />
                                 <span className="text-sm font-medium">{formatCategoryName(cat.category)}</span>
                               </div>
                               <span className="text-sm font-medium">{cat.completion}%</span>
                             </div>
-                            <div className="bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                            <div className="bg-slate-100 rounded-full h-[6px] overflow-hidden">
                               <div 
-                                className={`h-full ${colorClass} transition-all duration-500 ease-in-out`}
+                                className={`h-full ${bgClass} transition-all duration-500 ease-in-out h-[6px]`}
                                 style={{ width: `${cat.completion}%` }}
                               />
                             </div>
@@ -257,11 +253,12 @@ const BHDashboard = () => {
                         {visitMetrics.hrConnectSessions.completed} / {visitMetrics.hrConnectSessions.total}
                       </span>
                     </div>
-                    <Progress 
+                    <Progress
                       value={visitMetrics.hrConnectSessions.total > 0 ? 
                         (visitMetrics.hrConnectSessions.completed / visitMetrics.hrConnectSessions.total) * 100 : 0
-                      } 
-                      className="h-2" 
+                      }
+                      className="h-[6px]"
+                      indicatorClassName="bg-blue-500 h-[6px]"
                     />
                   </div>
                   
@@ -272,7 +269,7 @@ const BHDashboard = () => {
                         {visitMetrics.avgParticipation}%
                       </span>
                     </div>
-                    <Progress value={visitMetrics.avgParticipation} className="h-2" />
+                    <Progress value={visitMetrics.avgParticipation} className="h-[6px]" indicatorClassName="bg-green-500 h-[6px]" />
                   </div>
                   
                   <div>
@@ -282,7 +279,7 @@ const BHDashboard = () => {
                         {visitMetrics.employeeCoverage}%
                       </span>
                     </div>
-                    <Progress value={visitMetrics.employeeCoverage} className="h-2" />
+                    <Progress value={visitMetrics.employeeCoverage} className="h-[6px]" indicatorClassName="bg-purple-500 h-[6px]" />
                   </div>
                   
                   <div>
@@ -292,7 +289,7 @@ const BHDashboard = () => {
                         {visitMetrics.newEmployeeCoverage}%
                       </span>
                     </div>
-                    <Progress value={visitMetrics.newEmployeeCoverage} className="h-2" />
+                    <Progress value={visitMetrics.newEmployeeCoverage} className="h-[6px]" indicatorClassName="bg-orange-500 h-[6px]" />
                   </div>
                 </div>
               </CardContent>

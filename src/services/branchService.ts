@@ -534,39 +534,13 @@ export const getBHVisitMetrics = async (userId: string): Promise<{
 // Get coverage by branch category for BH Dashboard
 export const getBranchCategoryCoverage = async (userId: string): Promise<{ category: string, completion: number, color: string }[]> => {
   try {
-    // Get assigned branches with their categories
-    const { data: assignments, error: assignmentError } = await supabase
-      .from('branch_assignments')
-      .select('*, branches!branch_assignments_branch_id_fkey(*)')
-      .eq('user_id', userId) as { data: BranchAssignment[] | null, error: any };
-      
-    if (assignmentError) {
-      throw assignmentError;
-    }
-    
-    if (!assignments || assignments.length === 0) {
-      return [];
-    }
-    
-    // Group branches by category
-    const categoryBranches: Record<string, string[]> = {};
-    assignments.forEach(assignment => {
-      if (assignment.branches) {
-        const category = assignment.branches.category.toLowerCase();
-        if (!categoryBranches[category]) {
-          categoryBranches[category] = [];
-        }
-        categoryBranches[category].push(assignment.branch_id);
-      }
-    });
-    
-    // Get visits for this month
+    // Get all visits for this month
     const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     
     const { data: visits, error: visitsError } = await supabase
       .from('branch_visits')
-      .select('branch_id')
+      .select('branch_id, branches!branch_visits_branch_id_fkey(category)')
       .eq('user_id', userId)
       .in('status', ['submitted', 'approved'])
       .gte('visit_date', firstDayOfMonth.toISOString())
@@ -576,16 +550,35 @@ export const getBranchCategoryCoverage = async (userId: string): Promise<{ categ
       throw visitsError;
     }
     
-    // Calculate completion rates by category
-    const visitedBranches = new Set(visits?.map(v => v.branch_id) || []);
+    if (!visits || visits.length === 0) {
+      return [];
+    }
     
-    const coverage = Object.entries(categoryBranches).map(([category, branches]) => {
-      const visitedCount = branches.filter(id => visitedBranches.has(id)).length;
-      const completion = Math.round((visitedCount / branches.length) * 100);
+    // Count visits by category
+    const categoryCounts: Record<string, number> = {};
+    let totalVisits = 0;
+    
+    visits.forEach(visit => {
+      let category = 'unknown';
+      const branches: any = visit.branches;
+      if (branches) {
+        if (Array.isArray(branches)) {
+          category = branches[0]?.category?.toLowerCase() || 'unknown';
+        } else {
+          category = branches.category?.toLowerCase() || 'unknown';
+        }
+      }
+      categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+      totalVisits++;
+    });
+    
+    // Calculate percentage for each category
+    const coverage = Object.entries(categoryCounts).map(([category, count]) => {
+      const percentage = Math.round((count / totalVisits) * 100);
       
       return {
         category: category.charAt(0).toUpperCase() + category.slice(1),
-        completion,
+        completion: percentage,
         color: getCategoryColor(category)
       };
     });
@@ -612,7 +605,7 @@ export const getCoverageParticipationTrends = async (timeRange = 'lastSixMonths'
   
   try {
     // Get date range based on timeRange
-    const endDate = new Date();
+    let endDate = new Date();
     let startDate: Date;
     
     switch (timeRange) {
@@ -826,10 +819,19 @@ export const getPerformanceTrends = async (timeRange = 'lastSixMonths'): Promise
   console.log("Fetching performance trends for", timeRange);
   try {
     // Get date range based on timeRange
-    const endDate = new Date();
+    let endDate = new Date();
     let startDate: Date;
     
     switch (timeRange) {
+      case 'lastWeek':
+        startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() - 6);
+        break;
+      case 'lastYear':
+        startDate = new Date(endDate);
+        startDate.setMonth(startDate.getMonth() - 11, 1); // First day of the month 11 months ago
+        endDate = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0); // Last day of current month
+        break;
       case 'lastMonth':
         startDate = new Date(endDate);
         startDate.setMonth(startDate.getMonth() - 1);
@@ -844,7 +846,7 @@ export const getPerformanceTrends = async (timeRange = 'lastSixMonths'): Promise
         startDate.setMonth(startDate.getMonth() - 6);
     }
     
-    // Get time periods for the chart
+    // Use the helper function to get periods
     const periods = getTimePeriods(timeRange, startDate, endDate);
     
     // Get all visits within the date range
@@ -903,28 +905,23 @@ export const getPerformanceTrends = async (timeRange = 'lastSixMonths'): Promise
           manningSum += visit.manning_percentage;
           manningCount++;
         }
-        
         if (visit.attrition_percentage !== null) {
           attritionSum += visit.attrition_percentage;
           attritionCount++;
         }
-        
         if (visit.er_percentage !== null) {
           erSum += visit.er_percentage;
           erCount++;
         }
-
         if (visit.non_vendor_percentage !== null) {
           nonVendorSum += visit.non_vendor_percentage;
           nonVendorCount++;
         }
-
         if (visit.cwt_cases !== null) {
           cwtSum += visit.cwt_cases;
           cwtCount++;
         }
       });
-      
       return {
         month: period.label,
         manning: manningCount ? Math.round(manningSum / manningCount) : 0,
@@ -949,67 +946,93 @@ export const getPerformanceTrends = async (timeRange = 'lastSixMonths'): Promise
 // Helper function to generate time periods based on selected range
 const getTimePeriods = (timeRange: string, startDate: Date, endDate: Date): { start: Date; end: Date; label: string }[] => {
   const periods: { start: Date; end: Date; label: string }[] = [];
-  let currentDate: Date;
   
   switch (timeRange) {
-    case 'lastMonth':
-      // Weekly periods for the last month
-      currentDate = new Date(startDate);
-      let weekNum = 1;
-      
-      while (currentDate < endDate) {
-        const weekStart = new Date(currentDate);
-        const weekEnd = new Date(currentDate);
-        weekEnd.setDate(weekEnd.getDate() + 6);
-        
-        if (weekEnd > endDate) {
-          weekEnd.setTime(endDate.getTime());
-        }
-        
+    case 'lastWeek': {
+      for (let i = 6; i >= 0; i--) {
+        let currentDate = new Date(endDate);
+        currentDate.setDate(currentDate.getDate() - i);
+        const dayStart = new Date(currentDate);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(currentDate);
+        dayEnd.setHours(23, 59, 59, 999);
         periods.push({
-          start: weekStart,
-          end: weekEnd,
-          label: `Week ${weekNum}`
+          start: dayStart,
+          end: dayEnd,
+          label: dayStart.toLocaleDateString('en-US', { weekday: 'short' })
         });
-        
-        currentDate.setDate(currentDate.getDate() + 7);
-        weekNum++;
       }
       break;
-      
-    case 'lastQuarter':
-    case 'lastSixMonths':
-    default:
-      // Monthly periods
-      currentDate = new Date(startDate);
-      currentDate.setDate(1); // Start from the 1st of the month
-      
-      while (currentDate < endDate) {
+    }
+    case 'lastYear': {
+      // Generate 12 monthly periods from the same month last year up to this month
+      let currentDate = new Date(endDate);
+      currentDate.setMonth(currentDate.getMonth() - 11, 1); // Go back 11 months, set to 1st
+      for (let i = 0; i < 12; i++) {
         const monthStart = new Date(currentDate);
         const monthEnd = new Date(currentDate);
-        monthEnd.setMonth(monthEnd.getMonth() + 1, 0); // Last day of current month
-        
+        monthEnd.setMonth(currentDate.getMonth() + 1, 0); // Last day of current month
         const monthStr = monthStart.toLocaleDateString('en-US', { month: 'short' });
         periods.push({
           start: monthStart,
           end: monthEnd,
           label: monthStr
         });
-        
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
+      break;
+    }
+    case 'lastMonth': {
+      let currentDate = new Date(startDate);
+      let weekNum = 1;
+      while (currentDate < endDate) {
+        const weekStart = new Date(currentDate);
+        const weekEnd = new Date(currentDate);
+        weekEnd.setDate(currentDate.getDate() + 6);
+        if (weekEnd > endDate) {
+          weekEnd.setTime(endDate.getTime());
+        }
+        periods.push({
+          start: weekStart,
+          end: weekEnd,
+          label: `Week ${weekNum}`
+        });
+        currentDate.setDate(currentDate.getDate() + 7);
+        weekNum++;
+      }
+      break;
+    }
+    case 'lastQuarter':
+    case 'lastSixMonths':
+    default: {
+      let currentDate = new Date(startDate);
+      currentDate.setDate(1); // Start from the 1st of the month
+      while (currentDate < endDate) {
+        const monthStart = new Date(currentDate);
+        const monthEnd = new Date(currentDate);
+        monthEnd.setMonth(currentDate.getMonth() + 1, 0); // Last day of current month
+        const monthStr = monthStart.toLocaleDateString('en-US', { month: 'short' });
+        periods.push({
+          start: monthStart,
+          end: monthEnd,
+          label: monthStr
+        });
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+      break;
   }
-  
+  }
   return periods;
 };
 
 // Helper function to get category colors
 const getCategoryColor = (category: string) => {
   const colors = {
-    urban: "bg-blue-500",
-    'semi-urban': "bg-emerald-500",
-    rural: "bg-purple-500",
-    metro: "bg-orange-500"
+    platinum: "bg-violet-100 text-violet-700 border-violet-300",
+    diamond: "bg-blue-100 text-blue-700 border-blue-300",
+    gold: "bg-amber-100 text-amber-700 border-amber-300",
+    silver: "bg-slate-100 text-slate-700 border-slate-300",
+    bronze: "bg-orange-100 text-orange-700 border-orange-300"
   };
-  return colors[category.toLowerCase()] || "bg-slate-500";
+  return colors[category.toLowerCase()] || "bg-slate-100 text-slate-700 border-slate-300";
 };

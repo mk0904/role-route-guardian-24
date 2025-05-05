@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,14 +9,15 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Download, FileText, Filter, RefreshCw } from "lucide-react";
+import { Download, FileText, Filter, RefreshCw, Users, TrendingUp, Star, CheckCircle2, BarChart2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { 
   fetchMonthlySummaryReport,
   fetchCategoryBreakdown,
   exportBranchVisitData,
   exportBHRPerformanceSummary,
-  exportBranchAssignments
+  exportBranchAssignments,
+  fetchCategoryStatsByMonth
 } from "@/services/reportService";
 import { toast } from "@/components/ui/use-toast";
 
@@ -33,13 +33,16 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = [CURRENT_YEAR - 1, CURRENT_YEAR, CURRENT_YEAR + 1];
 
-const StatSummary = ({ title, value, suffix = "" }: { title: string; value: number | string; suffix?: string }) => {
+const StatSummary = ({ title, value, suffix = "", icon, gradient }: { title: string; value: number | string; suffix?: string; icon: React.ReactNode; gradient: string }) => {
   return (
-    <div className="bg-white rounded-lg border p-6">
-      <div className="text-sm text-slate-500">{title}</div>
+    <div className={`rounded-lg border p-6 ${gradient} text-white flex items-center gap-4`}>
+      <div className="flex-shrink-0">{icon}</div>
+      <div>
+        <div className="text-sm opacity-80">{title}</div>
       <div className="mt-1 flex items-end">
         <span className="text-4xl font-bold">{value}</span>
         {suffix && <span className="text-xl ml-1 mb-1">{suffix}</span>}
+        </div>
       </div>
     </div>
   );
@@ -47,15 +50,17 @@ const StatSummary = ({ title, value, suffix = "" }: { title: string; value: numb
 
 const CategoryCard = ({ 
   name, 
-  branches, 
-  coverage, 
-  averageVisits,
+  visits,
+  avgManning,
+  avgAttrition,
+  branchCount,
   color = "blue" 
 }: { 
   name: string; 
-  branches: number;
-  coverage: number;
-  averageVisits: number;
+  visits: number;
+  avgManning: number;
+  avgAttrition: number;
+  branchCount: number;
   color?: "blue" | "purple" | "gold" | "silver" | "bronze";
 }) => {
   const getColorClasses = () => {
@@ -67,28 +72,24 @@ const CategoryCard = ({
       default: return { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-200" };
     }
   };
-
   const colorClasses = getColorClasses();
-
   return (
     <div className={`rounded-lg border ${colorClasses.border} overflow-hidden`}>
       <div className={`py-2 px-4 ${colorClasses.bg} ${colorClasses.text}`}>
         <Badge variant="outline" className={`${colorClasses.text} bg-white font-medium`}>
           {name}
         </Badge>
-        <div className="mt-2 text-lg font-medium">{branches} branches</div>
+        <div className="mt-2 text-lg font-medium">{visits} visits</div>
+        <div className="text-xs mt-1">{branchCount} branches</div>
       </div>
       <div className="p-4 space-y-3">
-        <div>
-          <div className="flex justify-between text-sm mb-1">
-            <span>Coverage</span>
-            <span className="font-medium">{coverage}%</span>
-          </div>
-          <Progress className="h-2" value={coverage} />
+        <div className="flex justify-between text-sm">
+          <span>Manning</span>
+          <span className="font-medium">{avgManning}%</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span>Avg. Visits per Branch</span>
-          <span className="font-medium">{averageVisits}</span>
+          <span>Attrition</span>
+          <span className="font-medium">{avgAttrition}%</span>
         </div>
       </div>
     </div>
@@ -135,15 +136,17 @@ const CHReports = () => {
   const [isDownloadingAssignments, setIsDownloadingAssignments] = useState(false);
 
   // Fetch summary report data
+  const monthNumber = MONTHS.indexOf(selectedMonth) + 1; // 1-based month
+  const yearNumber = parseInt(selectedYear, 10);
   const { data: summaryData, isLoading: isSummaryLoading, refetch: refetchSummary } = useQuery({
     queryKey: ['ch-reports-summary', selectedMonth, selectedYear],
-    queryFn: () => fetchMonthlySummaryReport(selectedMonth, selectedYear)
+    queryFn: () => fetchMonthlySummaryReport(yearNumber, monthNumber)
   });
 
   // Fetch category breakdown data
   const { data: categoryData, isLoading: isCategoryLoading, refetch: refetchCategory } = useQuery({
     queryKey: ['ch-category-breakdown', selectedMonth, selectedYear],
-    queryFn: () => fetchCategoryBreakdown(selectedMonth, selectedYear)
+    queryFn: () => fetchCategoryStatsByMonth(yearNumber, monthNumber)
   });
 
   const resetFilters = () => {
@@ -171,13 +174,7 @@ const CHReports = () => {
   const handleDownloadBranchVisits = async () => {
     setIsDownloadingVisits(true);
     try {
-      const data = await exportBranchVisitData(
-        selectedMonth, 
-        selectedYear, 
-        selectedLocation !== 'all' ? selectedLocation : undefined,
-        selectedCategory !== 'all' ? selectedCategory : undefined,
-        selectedBHR !== 'all' ? selectedBHR : undefined
-      );
+      const data = await exportBranchVisitData();
       
       if (data.length === 0) {
         toast({
@@ -223,7 +220,7 @@ const CHReports = () => {
   const handleDownloadBHRPerformance = async () => {
     setIsDownloadingBHR(true);
     try {
-      const data = await exportBHRPerformanceSummary(selectedMonth, selectedYear);
+      const data = await exportBHRPerformanceSummary();
       
       if (data.length === 0) {
         toast({
@@ -470,28 +467,34 @@ const CHReports = () => {
         <div className="mb-6">
           <h2 className="text-2xl font-bold">Monthly Summary Report: {selectedMonth} {selectedYear}</h2>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatSummary
             title="Total Branch Visits"
-            value={isSummaryLoading ? "..." : summaryData?.totalBranchVisits || 0}
+            value={isSummaryLoading ? "..." : summaryData?.length || 0}
+            icon={<BarChart2 className="h-8 w-8 text-blue-100" />}
+            gradient="bg-gradient-to-br from-blue-500 to-blue-700"
           />
           <StatSummary
             title="Coverage Percentage"
-            value={isSummaryLoading ? "..." : summaryData?.coveragePercentage || 0}
+            value={isSummaryLoading ? "..." : summaryData ? Math.round((new Set(summaryData.map(v => v.branch_id)).size / summaryData.length) * 100) : 0}
             suffix="%"
+            icon={<TrendingUp className="h-8 w-8 text-green-100" />}
+            gradient="bg-gradient-to-br from-green-500 to-green-700"
           />
           <StatSummary
             title="Avg. Participation"
-            value={isSummaryLoading ? "..." : summaryData?.avgParticipation || 0}
+            value={isSummaryLoading ? "..." : summaryData ? Math.round(summaryData.reduce((acc, v) => acc + (v.total_participants || 0), 0) / summaryData.length) : 0}
             suffix="%"
+            icon={<Users className="h-8 w-8 text-amber-100" />}
+            gradient="bg-gradient-to-br from-amber-500 to-yellow-600"
           />
           <StatSummary
             title="Top Performer"
-            value={isSummaryLoading ? "..." : summaryData?.topPerformer || "N/A"}
+            value={isSummaryLoading ? "..." : summaryData ? summaryData[0]?.bh_name || "N/A" : "N/A"}
+            icon={<Star className="h-8 w-8 text-purple-100" />}
+            gradient="bg-gradient-to-br from-purple-500 to-indigo-600"
           />
         </div>
-
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-4">Category Breakdown</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
@@ -499,17 +502,22 @@ const CHReports = () => {
               <div className="col-span-full flex justify-center py-8">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
               </div>
-            ) : (
-              categoryData?.map((category, index) => (
+            ) : categoryData && categoryData.length > 0 ? (
+              categoryData.map((category, index) => (
                 <CategoryCard
                   key={index}
                   name={category.name}
-                  branches={category.branches}
-                  coverage={category.coverage}
-                  averageVisits={category.averageVisits}
+                  visits={category.visits}
+                  avgManning={category.avgManning}
+                  avgAttrition={category.avgAttrition}
+                  branchCount={category.branchCount}
                   color={getCategoryColorByName(category.name)}
                 />
               ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                No category data available
+              </div>
             )}
           </div>
         </div>
