@@ -331,8 +331,8 @@ const CHDashboard = () => {
           <CardContent className="p-6 flex items-center gap-4">
             <div className="flex flex-col gap-1 flex-1">
               <div className="flex items-center justify-between">
-                <CheckCircle2 className="h-10 w-10 text-purple-500" />
                 <p className="text-sm font-medium opacity-80">Non-Vendor %</p>
+                <CheckCircle2 className="h-10 w-10 text-purple-500" />
               </div>
 
               <div className="flex items-end justify-between">
