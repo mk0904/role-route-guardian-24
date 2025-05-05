@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Calendar, Check, Clock, MapPin, User, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchBHRReportStats, updateReportStatus } from "@/services/reportService";
+import { fetchBHReportStats, updateReportStatus } from "@/services/reportService";
 import { toast } from "@/components/ui/use-toast";
 
 interface Branch {
@@ -19,18 +19,18 @@ interface Branch {
   category: string;
 }
 
-interface BHRDetailsModalProps {
+interface BHDetailsModalProps {
   bhId: string | null;
   open: boolean;
   onClose: () => void;
 }
 
-const BHRDetailsModal = ({ bhId, open, onClose }: BHRDetailsModalProps) => {
+const BHDetailsModal = ({ bhId, open, onClose }: BHDetailsModalProps) => {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("branches");
 
-  const { data: bhrProfile, isLoading: profileLoading } = useQuery({
-    queryKey: ['bhr-profile', bhId],
+  const { data: bhProfile, isLoading: profileLoading } = useQuery({
+    queryKey: ['bh-profile', bhId],
     queryFn: async () => {
       if (!bhId) return null;
       
@@ -47,7 +47,7 @@ const BHRDetailsModal = ({ bhId, open, onClose }: BHRDetailsModalProps) => {
   });
 
   const { data: assignedBranches, isLoading: branchesLoading } = useQuery({
-    queryKey: ['bhr-branches', bhId],
+    queryKey: ['bh-branches', bhId],
     queryFn: async () => {
       if (!bhId) return [];
       
@@ -85,16 +85,16 @@ const BHRDetailsModal = ({ bhId, open, onClose }: BHRDetailsModalProps) => {
   });
 
   const { data: reportStats, refetch: refetchStats } = useQuery({
-    queryKey: ['bhr-report-stats', bhId],
+    queryKey: ['bh-report-stats', bhId],
     queryFn: async () => {
       if (!bhId) return null;
-      return fetchBHRReportStats(bhId);
+      return fetchBHReportStats(bhId);
     },
     enabled: !!bhId && open
   });
 
   const { data: recentReports, isLoading: reportsLoading, refetch: refetchReports } = useQuery({
-    queryKey: ['bhr-recent-reports', bhId],
+    queryKey: ['bh-recent-reports', bhId],
     queryFn: async () => {
       if (!bhId) return [];
       
@@ -124,7 +124,7 @@ const BHRDetailsModal = ({ bhId, open, onClose }: BHRDetailsModalProps) => {
 
   // Fetch report details when a report is selected
   const { data: reportDetails, isLoading: reportDetailsLoading } = useQuery({
-    queryKey: ['bhr-report-details', selectedReportId],
+    queryKey: ['bh-report-details', selectedReportId],
     queryFn: async () => {
       if (!selectedReportId) return null;
       
@@ -228,37 +228,37 @@ const BHRDetailsModal = ({ bhId, open, onClose }: BHRDetailsModalProps) => {
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">BHR Details</DialogTitle>
+          <DialogTitle className="text-xl">BHr Details</DialogTitle>
         </DialogHeader>
 
         {profileLoading ? (
           <div className="flex justify-center py-8">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </div>
-        ) : !bhrProfile ? (
-          <div className="py-4 text-center text-slate-500">BHR profile not found</div>
+        ) : !bhProfile ? (
+          <div className="py-4 text-center text-slate-500">BH profile not found</div>
         ) : (
           <>
             <div className="flex flex-col md:flex-row gap-4 md:items-start mb-6">
               <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-2xl font-bold shadow-md">
-                {bhrProfile.full_name.charAt(0)}
+                {bhProfile.full_name.charAt(0)}
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-semibold">{bhrProfile.full_name}</h3>
-                <p className="text-slate-500">{bhrProfile.e_code}</p>
+                <h3 className="text-xl font-semibold">{bhProfile.full_name}</h3>
+                <p className="text-slate-500">{bhProfile.e_code}</p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                   <div className="flex items-center">
                     <User className="h-5 w-5 text-slate-400 mr-2" />
-                    <span>{bhrProfile.role}</span>
+                    <span>{bhProfile.role}</span>
                   </div>
                   <div className="flex items-center">
                     <MapPin className="h-5 w-5 text-slate-400 mr-2" />
-                    <span>{bhrProfile.location}</span>
+                    <span>{bhProfile.location}</span>
                   </div>
                   <div className="flex items-center">
                     <Clock className="h-5 w-5 text-slate-400 mr-2" />
-                    <span>Joined {formatDate(bhrProfile.created_at)}</span>
+                    <span>Joined {formatDate(bhProfile.created_at)}</span>
                   </div>
                 </div>
               </div>
@@ -491,4 +491,4 @@ const BHRDetailsModal = ({ bhId, open, onClose }: BHRDetailsModalProps) => {
   );
 };
 
-export default BHRDetailsModal;
+export default BHDetailsModal;

@@ -15,7 +15,7 @@ import {
   fetchMonthlySummaryReport,
   fetchCategoryBreakdown,
   exportBranchVisitData,
-  exportBHRPerformanceSummary,
+  exportBHPerformanceSummary,
   exportBranchAssignments,
   fetchCategoryStatsByMonth
 } from "@/services/reportService";
@@ -130,9 +130,9 @@ const CHReports = () => {
   const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR.toString());
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedBHR, setSelectedBHR] = useState("all");
+  const [selectedBH, setSelectedBH] = useState("all");
   const [isDownloadingVisits, setIsDownloadingVisits] = useState(false);
-  const [isDownloadingBHR, setIsDownloadingBHR] = useState(false);
+  const [isDownloadingBH, setIsDownloadingBH] = useState(false);
   const [isDownloadingAssignments, setIsDownloadingAssignments] = useState(false);
 
   // Fetch summary report data
@@ -154,7 +154,7 @@ const CHReports = () => {
     setSelectedYear(CURRENT_YEAR.toString());
     setSelectedLocation("all");
     setSelectedCategory("all");
-    setSelectedBHR("all");
+    setSelectedBH("all");
     refetchSummary();
     refetchCategory();
   };
@@ -217,15 +217,15 @@ const CHReports = () => {
     }
   };
 
-  const handleDownloadBHRPerformance = async () => {
-    setIsDownloadingBHR(true);
+  const handleDownloadBHPerformance = async () => {
+    setIsDownloadingBH(true);
     try {
-      const data = await exportBHRPerformanceSummary();
+      const data = await exportBHPerformanceSummary();
       
       if (data.length === 0) {
         toast({
           title: "No data to export",
-          description: "There are no BHR performance data to export."
+          description: "There are no BH performance data to export."
         });
         return;
       }
@@ -242,24 +242,24 @@ const CHReports = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', `bhr_performance_${selectedMonth}_${selectedYear}.csv`);
+      link.setAttribute('download', `bh_performance_${selectedMonth}_${selectedYear}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
       toast({
         title: "Download complete",
-        description: "BHR performance summary has been exported successfully."
+        description: "BH performance summary has been exported successfully."
       });
     } catch (error) {
-      console.error("Error exporting BHR data:", error);
+      console.error("Error exporting BH data:", error);
       toast({
         variant: "destructive",
         title: "Export failed",
-        description: "There was an error exporting the BHR performance data."
+        description: "There was an error exporting the BH performance data."
       });
     } finally {
-      setIsDownloadingBHR(false);
+      setIsDownloadingBH(false);
     }
   };
 
@@ -419,16 +419,16 @@ const CHReports = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bhr">BHR</Label>
-                  <Select value={selectedBHR} onValueChange={setSelectedBHR}>
-                    <SelectTrigger id="bhr">
+                  <Label htmlFor="bh">BH</Label>
+                  <Select value={selectedBH} onValueChange={setSelectedBH}>
+                    <SelectTrigger id="bh">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All BHRs</SelectItem>
-                      <SelectItem value="bhr1">Sanjay Singh</SelectItem>
-                      <SelectItem value="bhr2">Priya Sharma</SelectItem>
-                      <SelectItem value="bhr3">Vikram Malhotra</SelectItem>
+                      <SelectItem value="all">All BHs</SelectItem>
+                      <SelectItem value="bh1">Sanjay Singh</SelectItem>
+                      <SelectItem value="bh2">Priya Sharma</SelectItem>
+                      <SelectItem value="bh3">Vikram Malhotra</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -534,10 +534,10 @@ const CHReports = () => {
             isLoading={isDownloadingVisits}
           />
           <DownloadButton 
-            label="BHR Performance Summary"
+            label="BH Performance Summary"
             icon={<Download className="h-5 w-5" />}
-            onClick={handleDownloadBHRPerformance}
-            isLoading={isDownloadingBHR}
+            onClick={handleDownloadBHPerformance}
+            isLoading={isDownloadingBH}
           />
           <DownloadButton 
             label="Branch Assignments"

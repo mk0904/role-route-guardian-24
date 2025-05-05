@@ -42,7 +42,7 @@ const ZHDashboardLayout = () => {
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/zh/dashboard" },
     { icon: Map, label: "Branch Mapping", path: "/zh/branch-mapping" },
-    { icon: Users, label: "BHR Management", path: "/zh/bhr-management" },
+    { icon: Users, label: "BH Management", path: "/zh/bh-management" },
     { icon: ClipboardList, label: "Review Reports", path: "/zh/review-reports" },
   ];
 

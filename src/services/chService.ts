@@ -19,7 +19,7 @@ export interface MonthlyStats {
   participationRate?: number;
 }
 
-export interface BHRPerformance {
+export interface BHPerformance {
   id: string;
   name: string;
   coverage: number;
@@ -31,7 +31,7 @@ interface DashboardStats {
   totalBranches: number;
   visitedBranches: number;
   coverage: number;
-  activeBHRs: number;
+  activeBHs: number;
   avgCoverage: number;
   attritionRate: number;
   manningPercentage: number;
@@ -165,14 +165,14 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
       erPercentage: lastValidVisits > 0 ? Math.round(lastErSum / lastValidVisits) : 0
     };
 
-    // Get active BHRs count
+    // Get active BHs count
     const { data: activeBhrs, error: activeBhrsError } = await supabase
       .from('profiles')
       .select('id')
       .eq('role', 'BH');
 
     if (activeBhrsError) {
-      console.error("Error fetching active BHRs:", activeBhrsError);
+      console.error("Error fetching active BHs:", activeBhrsError);
       throw activeBhrsError;
     }
 
@@ -180,7 +180,7 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
       totalBranches: totalBranches || 0,
       visitedBranches: currentVisitedBranches.size,
       coverage: currentMetrics.coverage,
-      activeBHRs: activeBhrs?.length || 0,
+      activeBHs: activeBhrs?.length || 0,
       avgCoverage: currentMetrics.avgCoverage,
       attritionRate: currentMetrics.attritionRate,
       manningPercentage: currentMetrics.manningPercentage,
@@ -204,7 +204,7 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
       totalBranches: 0,
       visitedBranches: 0,
       coverage: 0,
-      activeBHRs: 0,
+      activeBHs: 0,
       avgCoverage: 0,
       attritionRate: 0,
       manningPercentage: 0,
@@ -379,7 +379,7 @@ export async function fetchMonthlyTrends(): Promise<MonthlyStats[]> {
   }
 }
 
-export async function fetchTopPerformers(): Promise<BHRPerformance[]> {
+export async function fetchTopPerformers(): Promise<BHPerformance[]> {
   try {
     // Get current month's visits
     const today = new Date();
@@ -416,8 +416,8 @@ export async function fetchTopPerformers(): Promise<BHRPerformance[]> {
       throw branchError;
     }
 
-    // Group visits by BHR
-    const bhrStats: Record<string, {
+    // Group visits by BH
+    const bhStats: Record<string, {
       id: string;
       name: string;
       e_code?: string;
@@ -429,8 +429,8 @@ export async function fetchTopPerformers(): Promise<BHRPerformance[]> {
       const userId = visit.user_id;
       if (!userId || !visit.profiles) return;
 
-      if (!bhrStats[userId]) {
-        bhrStats[userId] = {
+      if (!bhStats[userId]) {
+        bhStats[userId] = {
           id: userId,
           name: visit.profiles.full_name || 'Unknown',
           e_code: visit.profiles.e_code,
@@ -439,17 +439,17 @@ export async function fetchTopPerformers(): Promise<BHRPerformance[]> {
         };
       }
 
-      bhrStats[userId].visitedBranches.add(visit.branch_id);
-      bhrStats[userId].totalVisits++;
+      bhStats[userId].visitedBranches.add(visit.branch_id);
+      bhStats[userId].totalVisits++;
     });
 
     // Convert to array and calculate coverage
-    const performers = Object.values(bhrStats).map(bhr => ({
-      id: bhr.id,
-      name: bhr.name,
-      e_code: bhr.e_code,
-      coverage: totalBranches ? Math.round((bhr.visitedBranches.size / totalBranches) * 100) : 0,
-      reports: bhr.totalVisits
+    const performers = Object.values(bhStats).map(bh => ({
+      id: bh.id,
+      name: bh.name,
+      e_code: bh.e_code,
+      coverage: totalBranches ? Math.round((bh.visitedBranches.size / totalBranches) * 100) : 0,
+      reports: bh.totalVisits
     }));
 
     // Sort by coverage and then by number of reports
@@ -536,23 +536,23 @@ export async function fetchAnalyticsData(month?: string, year?: string) {
     
     if (prevError) throw prevError;
     
-    // Get active BHRs for this month
-    const { data: activeBhrs, error: bhrError } = await supabase
+    // Get active BHs for this month
+    const { data: activeBhrs, error: bhError } = await supabase
       .from('branch_visits')
       .select('user_id')
       .gte('visit_date', startDate.toISOString())
       .lte('visit_date', endDate.toISOString())
       .in('status', ['submitted', 'approved']);
     
-    if (bhrError) throw bhrError;
+    if (bhError) throw bhError;
     
-    // Get total BHRs
-    const { count: totalBHRs, error: totalBHRError } = await supabase
+    // Get total BHs
+    const { count: totalBHs, error: totalBHError } = await supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'BH');
     
-    if (totalBHRError) throw totalBHRError;
+    if (totalBHError) throw totalBHError;
     
     // Count unique visited branches and calculate metrics
     const visits = currentVisits || [];
@@ -560,9 +560,9 @@ export async function fetchAnalyticsData(month?: string, year?: string) {
     const visitedCount = visitedBranchIds.size;
     const coverage = totalBranches ? Math.round((visitedCount / totalBranches) * 100) : 0;
     
-    // Count unique active BHRs
-    const uniqueActiveBHRs = new Set((activeBhrs || []).map(bhr => bhr.user_id));
-    const activeBHRsCount = uniqueActiveBHRs.size;
+    // Count unique active BHs
+    const uniqueActiveBHs = new Set((activeBhrs || []).map(bh => bh.user_id));
+    const activeBHsCount = uniqueActiveBHs.size;
     
     // Calculate participation rate
     const totalInvited = visits.reduce((sum, v) => sum + (v.total_employees_invited || 0), 0);
@@ -605,7 +605,7 @@ export async function fetchAnalyticsData(month?: string, year?: string) {
     // Get top performers data
     // For simplicity, we'll reuse the fetchTopPerformers function
     const topPerformers = await fetchTopPerformers();
-    const topBHR = topPerformers.length > 0 ? topPerformers[0] : null;
+    const topBH = topPerformers.length > 0 ? topPerformers[0] : null;
     
     // Calculate top category by coverage
     const categoryData = await fetchCategoryBreakdown();
@@ -617,9 +617,9 @@ export async function fetchAnalyticsData(month?: string, year?: string) {
     return {
       branchVisitCoverage: coverage,
       employeeParticipation: participationRate,
-      activeBHRs: { 
-        active: activeBHRsCount, 
-        total: totalBHRs || 0 
+      activeBHs: { 
+        active: activeBHsCount, 
+        total: totalBHs || 0 
       },
       attritionRate: Math.round(attritionSum / visitCount),
       vsLastMonth: {
@@ -639,7 +639,7 @@ export async function fetchAnalyticsData(month?: string, year?: string) {
       },
       sourceMix: sourceMixData,
       topPerformers: {
-        bhr: topBHR ? { name: topBHR.name, coverage: topBHR.coverage } : { name: 'N/A', coverage: 0 },
+        bh: topBH ? { name: topBH.name, coverage: topBH.coverage } : { name: 'N/A', coverage: 0 },
         category: topCategory ? { name: topCategory.name, rate: topCategory.coverage } : { name: 'N/A', coverage: 0 },
         location: { name: 'Mumbai', coverage: 94 }, // Would need location-specific queries
         mostImproved: { name: 'Silver Category', improvement: 15 } // Would need historical data comparison
@@ -657,7 +657,7 @@ export async function fetchAnalyticsData(month?: string, year?: string) {
     return {
       branchVisitCoverage: 0,
       employeeParticipation: 0,
-      activeBHRs: { active: 0, total: 0 },
+      activeBHs: { active: 0, total: 0 },
       attritionRate: 0,
       vsLastMonth: {
         branchVisitCoverage: 0,
@@ -680,7 +680,7 @@ export async function fetchAnalyticsData(month?: string, year?: string) {
         { name: 'Agency', value: 0 }
       ],
       topPerformers: {
-        bhr: { name: 'N/A', coverage: 0 },
+        bh: { name: 'N/A', coverage: 0 },
         category: { name: 'N/A', rate: 0 },
         location: { name: 'N/A', coverage: 0 },
         mostImproved: { name: 'N/A', improvement: 0 }
@@ -838,20 +838,20 @@ export async function generateReportData(month?: string, year?: string) {
       Math.round(totalNewEmployeeCoverage / validNewEmployeeCounts) : 0;
     
     // Find top performer
-    const bhrVisitCounts: Record<string, { name: string; count: number }> = {};
+    const bhVisitCounts: Record<string, { name: string; count: number }> = {};
     visits.forEach(visit => {
       if (!visit.user_id || !visit.profiles?.full_name) return;
       
-      if (!bhrVisitCounts[visit.user_id]) {
-        bhrVisitCounts[visit.user_id] = {
+      if (!bhVisitCounts[visit.user_id]) {
+        bhVisitCounts[visit.user_id] = {
           name: visit.profiles.full_name,
           count: 0
         };
       }
-      bhrVisitCounts[visit.user_id].count++;
+      bhVisitCounts[visit.user_id].count++;
     });
     
-    const topPerformer = Object.values(bhrVisitCounts).reduce(
+    const topPerformer = Object.values(bhVisitCounts).reduce(
       (top, current) => current.count > top.count ? current : top,
       { name: "No data", count: 0 }
     ).name;

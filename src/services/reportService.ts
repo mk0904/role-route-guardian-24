@@ -65,7 +65,7 @@ export interface HeatmapData {
   total: number;
 }
 
-export async function fetchBHRReportStats(userId: string): Promise<ReportStats> {
+export async function fetchBHReportStats(userId: string): Promise<ReportStats> {
   const { data, error } = await supabase
     .from("branch_visits")
     .select("status")
@@ -360,26 +360,26 @@ export async function exportBranchVisitData(dateRange?: DateRange) {
   }
 }
 
-export async function exportBHRPerformanceSummary() {
+export async function exportBHPerformanceSummary() {
   try {
-    const { data: bhrs, error: bhrError } = await supabase
+    const { data: bhs, error: bhError } = await supabase
       .from("users")
       .select('*')
-      .eq('role', 'BHR');
+      .eq('role', 'BH');
       
-    if (bhrError) throw bhrError;
+    if (bhError) throw bhError;
     
-    const bhrPerformance = await Promise.all(bhrs.map(async (bhr) => {
+    const bhPerformance = await Promise.all(bhs.map(async (bh) => {
       const { data: visits, error: visitError } = await supabase
         .from("branch_visits")
         .select('*')
-        .eq('user_id', bhr.id);
+        .eq('user_id', bh.id);
         
       if (visitError) throw visitError;
       
       return {
-        bhr_name: bhr.full_name,
-        bhr_code: bhr.e_code,
+        bh_name: bh.full_name,
+        bh_code: bh.e_code,
         total_visits: visits.length,
         submitted_reports: visits.filter(v => v.status === 'submitted').length,
         approved_reports: visits.filter(v => v.status === 'approved').length,
@@ -387,9 +387,9 @@ export async function exportBHRPerformanceSummary() {
       };
     }));
     
-    return bhrPerformance;
+    return bhPerformance;
   } catch (error) {
-    console.error("Error exporting BHR performance summary:", error);
+    console.error("Error exporting BH performance summary:", error);
     throw error;
   }
 }
@@ -417,8 +417,8 @@ export async function exportBranchAssignments() {
     if (error) throw error;
     
     return data.map(assignment => ({
-      bhr_name: assignment.users?.full_name || 'Unknown',
-      bhr_code: assignment.users?.e_code || 'Unknown',
+      bh_name: assignment.users?.full_name || 'Unknown',
+      bh_code: assignment.users?.e_code || 'Unknown',
       branch_name: assignment.branches?.name || 'Unknown',
       branch_location: assignment.branches?.location || 'Unknown',
       branch_code: assignment.branches?.branch_code || 'Unknown',

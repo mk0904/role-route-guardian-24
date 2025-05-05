@@ -18,7 +18,7 @@ import MyVisits from "./pages/MyVisits";
 import ZHDashboardLayout from "./components/zh/ZHDashboardLayout";
 import ZHDashboard from "./pages/ZHDashboard";
 import ZHBranchMapping from "./pages/ZHBranchMapping";
-import ZHBHRManagement from "./pages/ZHBHRManagement";
+import ZHBHManagement from "./pages/ZHBHManagement";
 import ZHReviewReports from "./pages/ZHReviewReports";
 import CHDashboardLayout from "./components/ch/CHDashboardLayout";
 import CHDashboard from "./pages/CHDashboard";
@@ -47,7 +47,7 @@ const AppRoutes = () => (
     <Route path="/zh" element={<ZHDashboardLayout />}>
       <Route path="dashboard" element={<ZHDashboard />} />
       <Route path="branch-mapping" element={<ZHBranchMapping />} />
-      <Route path="bhr-management" element={<ZHBHRManagement />} />
+      <Route path="bh-management" element={<ZHBHManagement />} />
       <Route path="review-reports" element={<ZHReviewReports />} />
     </Route>
     
