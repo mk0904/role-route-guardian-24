@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -86,7 +85,7 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="you@example.com" {...field} />
+                <Input placeholder="youremail@hdfclife.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -168,7 +167,7 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Full Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="Enter your full name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -223,7 +222,7 @@ const SignUpForm = () => {
               <FormItem>
                 <FormLabel>Location</FormLabel>
                 <FormControl>
-                  <Input placeholder="New York, NY" {...field} />
+                  <Input placeholder="Delhi" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -254,14 +253,21 @@ const SignUpForm = () => {
           />
         </div>
         
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button 
+          type="submit" 
+          className="w-full bg-blue-600 hover:bg-blue-700" 
+          disabled={loading}
+        >
           {loading ? (
-            <div className="flex items-center justify-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
-              <span>Creating Account...</span>
-            </div>
+            <span className="flex items-center gap-2">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
+              Creating account...
+            </span>
           ) : (
-            "Create Account"
+            <span className="flex items-center gap-2">
+              <UserPlus className="h-4 w-4" />
+              Create Account
+            </span>
           )}
         </Button>
       </form>

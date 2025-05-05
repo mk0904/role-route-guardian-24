@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { BarChart2, Users, ClipboardCheck, PieChart as PieChartIcon } from "lucide-react";
+import { BarChart2, Users, ClipboardCheck, PieChart as PieChartIcon, UserPlus } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { fetchDashboardStats } from "@/services/zhService";
 import { fetchRecentReports } from "@/services/reportService";
@@ -107,72 +107,77 @@ const ZHDashboard = () => {
 
   return (
     <div className="px-6 py-8 md:px-8 lg:px-10 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-8">
+      <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-6 md:mb-8">
         Zonal Head Dashboard
       </h1>
       
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
           {[...Array(4)].map((_, i) => (
             <Card key={i} className="animate-pulse">
-              <CardContent className="h-32"></CardContent>
+              <CardContent className="h-28 md:h-32"></CardContent>
             </Card>
           ))}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
             <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-0 shadow-md hover:shadow-lg transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-blue-900">Total Branches</h3>
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Building2 className="h-5 w-5 text-blue-600" />
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-semibold text-blue-900">Total Branches</h3>
+                  <div className="p-1.5 md:p-2 bg-blue-100 rounded-lg">
+                    <Building2 className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-3xl font-bold text-blue-700">
+                  <span className="text-2xl md:text-3xl font-bold text-blue-700">
                     {dashboardStats.totalBranches}
                   </span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm text-slate-600">
+                  <div className="flex items-center gap-1.5 md:gap-2 mt-1">
+                    <span className="text-xs md:text-sm text-slate-600">
                       {dashboardStats.visitedBranches} visited
                     </span>
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-[10px] md:text-xs bg-blue-100 text-blue-700 px-1.5 md:px-2 py-0.5 rounded-full font-medium">
                       this month
                     </span>
                   </div>
-                  <div className="mt-3">
-                    <Progress value={dashboardStats.coverage} className="h-2" />
+                  <div className="mt-2 md:mt-3">
+                    <Progress 
+                      value={dashboardStats.coverage} 
+                      className="h-1.5 md:h-2 bg-blue-100" 
+                      indicatorClassName="bg-blue-600"
+                    />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-0 shadow-md hover:shadow-lg transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-emerald-900">Active BHRs</h3>
-                  <div className="p-2 bg-emerald-100 rounded-lg">
-                    <Users className="h-5 w-5 text-emerald-600" />
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-semibold text-emerald-900">Active BHRs</h3>
+                  <div className="p-1.5 md:p-2 bg-emerald-100 rounded-lg">
+                    <Users className="h-4 w-4 md:h-5 md:w-5 text-emerald-600" />
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-3xl font-bold text-emerald-700">
+                  <span className="text-2xl md:text-3xl font-bold text-emerald-700">
                     {dashboardStats.activeBHRs}
                   </span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm text-slate-600">
-                      out of {dashboardStats.totalBHRs} total BHRs
+                  <div className="flex items-center gap-1.5 md:gap-2 mt-1">
+                    <span className="text-xs md:text-sm text-slate-600">
+                      out of {dashboardStats.totalBHRs} total
                     </span>
-                    <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-[10px] md:text-xs bg-emerald-100 text-emerald-700 px-1.5 md:px-2 py-0.5 rounded-full font-medium">
                       this month
                     </span>
                   </div>
-                  <div className="mt-3">
+                  <div className="mt-2 md:mt-3">
                     <Progress 
                       value={(dashboardStats.activeBHRs / dashboardStats.totalBHRs) * 100} 
-                      className="h-2" 
+                      className="h-1.5 md:h-2 bg-emerald-100" 
+                      indicatorClassName="bg-emerald-600"
                     />
                   </div>
                 </div>
@@ -180,48 +185,55 @@ const ZHDashboard = () => {
             </Card>
 
             <Card className="bg-gradient-to-br from-violet-50 to-purple-50 border-0 shadow-md hover:shadow-lg transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-violet-900">Branch Visits</h3>
-                  <div className="p-2 bg-violet-100 rounded-lg">
-                    <ClipboardList className="h-5 w-5 text-violet-600" />
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-semibold text-violet-900">Branch Visits</h3>
+                  <div className="p-1.5 md:p-2 bg-violet-100 rounded-lg">
+                    <ClipboardList className="h-4 w-4 md:h-5 md:w-5 text-violet-600" />
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-3xl font-bold text-violet-700">
+                  <span className="text-2xl md:text-3xl font-bold text-violet-700">
                     {dashboardStats.totalVisits}
                   </span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm text-slate-600">
+                  <div className="flex items-center gap-1.5 md:gap-2 mt-1">
+                    <span className="text-xs md:text-sm text-slate-600">
                       visits completed
                     </span>
-                    <span className="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-[10px] md:text-xs bg-violet-100 text-violet-700 px-1.5 md:px-2 py-0.5 rounded-full font-medium">
                       this month
                     </span>
+                  </div>
+                  <div className="mt-2 md:mt-3">
+                    <Progress 
+                      value={dashboardStats.participationRate} 
+                      className="h-1.5 md:h-2 bg-violet-100" 
+                      indicatorClassName="bg-violet-600"
+                    />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-0 shadow-md hover:shadow-lg transition-all">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-amber-900">submitted Reviews</h3>
-                  <div className="p-2 bg-amber-100 rounded-lg">
-                    <ClipboardCheck className="h-5 w-5 text-amber-600" />
+              <CardContent className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 className="text-base md:text-lg font-semibold text-amber-900">Submitted Reviews</h3>
+                  <div className="p-1.5 md:p-2 bg-amber-100 rounded-lg">
+                    <ClipboardCheck className="h-4 w-4 md:h-5 md:w-5 text-amber-600" />
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-3xl font-bold text-amber-700">
+                  <span className="text-2xl md:text-3xl font-bold text-amber-700">
                     {dashboardStats.submittedApproval}
                   </span>
-                  <span className="text-sm text-slate-600 mt-1">
+                  <span className="text-xs md:text-sm text-slate-600 mt-1">
                     reports awaiting review
                   </span>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="mt-4 bg-white hover:bg-amber-50"
+                    className="mt-2 md:mt-4 bg-white hover:bg-amber-50 text-xs md:text-sm"
                     onClick={() => navigate("/zh/review-reports")}
                   >
                     Review Reports

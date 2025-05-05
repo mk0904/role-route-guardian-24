@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,7 +50,7 @@ const LoginForm = ({ onForgotPassword }: LoginFormProps) => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="you@example.com" {...field} />
+                <Input placeholder="youremail@hdfclife.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -77,7 +76,7 @@ const LoginForm = ({ onForgotPassword }: LoginFormProps) => {
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     {...field}
                   />
                   <Button
@@ -100,7 +99,11 @@ const LoginForm = ({ onForgotPassword }: LoginFormProps) => {
           )}
         />
         
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button 
+          type="submit" 
+          className="w-full bg-blue-600 hover:bg-blue-700" 
+          disabled={loading}
+        >
           {loading ? (
             <span className="flex items-center gap-2">
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
