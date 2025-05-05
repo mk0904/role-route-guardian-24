@@ -112,7 +112,7 @@ const BHDashboard = () => {
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       {/* Welcome section */}
       <div className="flex flex-col gap-1.5">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1 md:mb-1">
           Welcome back, {profile?.full_name || "Branch Head"}
         </h1>
         <p className="text-muted-foreground">

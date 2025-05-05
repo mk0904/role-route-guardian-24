@@ -351,8 +351,8 @@ const ZHBranchMapping = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1">Branch Mapping</h1>
-        <p className="text-slate-600">Assign branches to Branch Head Representatives (BHs)</p>
+        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1 md:mb-1">Branch Mapping</h1>
+        <p className="text-slate-600-">Assign branches to Branch Head Representatives (BHRs)</p>
       </div>
       
       <Card className="mb-6 hover:shadow-md transition-shadow">

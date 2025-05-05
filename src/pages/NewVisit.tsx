@@ -428,25 +428,25 @@ const NewVisit = () => {
 
   return (
     <div className="container max-w-5xl py-6">
-      <h1 className="text-2xl font-bold mb-6">New Branch Visit Form</h1>
+      <h1 className="text-lg md:text-2xl font-bold mb-6 bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">New Branch Visit Form</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Branch Visit Details</CardTitle>
+          <CardTitle className="text-base md:text-xl">Branch Visit Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               {/* Basic Information */}
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Basic Information</h2>
+                <h2 className="text-base md:text-xl font-semibold">Basic Information</h2>
 
                 <FormField
                   control={form.control}
                   name="branchId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Branch</FormLabel>
+                      <FormLabel className="text-xs md:text-sm">Branch</FormLabel>
               <Select
                         onValueChange={(value) => {
                           field.onChange(value);
@@ -575,7 +575,7 @@ const NewVisit = () => {
 
               {/* HR Connect Session */}
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold">HR Connect Session</h2>
+                <h2 className="text-base md:text-xl font-semibold">HR Connect Session</h2>
 
                 <FormField
                   control={form.control}
@@ -605,7 +605,7 @@ const NewVisit = () => {
                       name="totalEmployeesInvited"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Total Employees Invited</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Total Employees Invited</FormLabel>
                           <FormControl>
                 <Input
                   type="number"
@@ -629,7 +629,7 @@ const NewVisit = () => {
                       name="totalParticipants"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Total Participants</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Total Participants</FormLabel>
                           <FormControl>
                 <Input
                   type="number"
@@ -660,7 +660,7 @@ const NewVisit = () => {
 
               {/* Branch Metrics */}
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Branch Metrics</h2>
+                <h2 className="text-base md:text-xl font-semibold">Branch Metrics</h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <FormField
@@ -668,7 +668,7 @@ const NewVisit = () => {
                     name="manningPercentage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Manning %</FormLabel>
+                        <FormLabel className="text-xs md:text-sm">Manning %</FormLabel>
                         <FormControl>
                           <div className="relative">
                 <Input
@@ -696,7 +696,7 @@ const NewVisit = () => {
                     name="attritionPercentage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Attrition %</FormLabel>
+                        <FormLabel className="text-xs md:text-sm">Attrition %</FormLabel>
                         <FormControl>
                           <div className="relative">
                 <Input
@@ -726,7 +726,7 @@ const NewVisit = () => {
                     name="nonVendorPercentage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Non-Vendor %</FormLabel>
+                        <FormLabel className="text-xs md:text-sm">Non-Vendor %</FormLabel>
                         <FormControl>
                           <div className="relative">
                 <Input
@@ -754,7 +754,7 @@ const NewVisit = () => {
                     name="erPercentage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>ER %</FormLabel>
+                        <FormLabel className="text-xs md:text-sm">ER %</FormLabel>
                         <FormControl>
                           <div className="relative">
                 <Input
@@ -782,7 +782,7 @@ const NewVisit = () => {
                     name="cwtCases"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>No. of CWT Cases</FormLabel>
+                        <FormLabel className="text-xs md:text-sm">No. of CWT Cases</FormLabel>
                         <FormControl>
                 <Input
                   type="number"
@@ -807,7 +807,7 @@ const NewVisit = () => {
                   name="performanceLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Performance</FormLabel>
+                      <FormLabel className="text-xs md:text-sm">Performance</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
@@ -830,17 +830,17 @@ const NewVisit = () => {
 
               {/* Employee Coverage */}
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Employee Coverage</h2>
+                <h2 className="text-base md:text-xl font-semibold">Employee Coverage</h2>
 
               <div>
-                  <h3 className="text-base font-medium mb-3">New Employees (0-6 months)</h3>
+                  <h3 className="text-sm md:text-lg font-semibold mb-3">New Employees (0-6 months)</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
                       name="newEmployeesTotal"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Total</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Total</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -864,7 +864,7 @@ const NewVisit = () => {
                       name="newEmployeesCovered"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Covered</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Covered</FormLabel>
                           <FormControl>
                 <Input
                   type="number"
@@ -886,14 +886,14 @@ const NewVisit = () => {
               </div>
 
               <div>
-                  <h3 className="text-base font-medium mb-3">STAR Employees</h3>
+                  <h3 className="text-sm md:text-lg font-semibold mb-3">STAR Employees</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
                       name="starEmployeesTotal"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Total</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Total</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -917,7 +917,7 @@ const NewVisit = () => {
                       name="starEmployeesCovered"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Covered</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Covered</FormLabel>
                           <FormControl>
                 <Input
                   type="number"
@@ -941,11 +941,11 @@ const NewVisit = () => {
 
               {/* Qualitative Assessment */}
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold">Qualitative Assessment</h2>
+                <h2 className="text-base md:text-xl font-semibold">Qualitative Assessment</h2>
                 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-4">
-                    <Label className="flex-1">Do leaders conduct business/work that is aligned with company's code of conduct?</Label>
+                    <Label className="text-xs md:text-sm flex-1">Do leaders conduct business/work that is aligned with company's code of conduct?</Label>
                 <YesNoToggle
                   name="leadersAlignedWithCode"
                   value={leadersAlignedWithCode}
@@ -954,7 +954,7 @@ const NewVisit = () => {
               </div>
 
                   <div className="flex items-center justify-between gap-4">
-                    <Label className="flex-1">Do employees feel safe & secure at their workplace?</Label>
+                    <Label className="text-xs md:text-sm flex-1">Do employees feel safe & secure at their workplace?</Label>
                 <YesNoToggle
                   name="employeesFeelSafe"
                   value={employeesFeelSafe}
@@ -963,7 +963,7 @@ const NewVisit = () => {
               </div>
 
                   <div className="flex items-center justify-between gap-4">
-                    <Label className="flex-1">Do employees feel motivated at workplace?</Label>
+                    <Label className="text-xs md:text-sm flex-1">Do employees feel motivated at workplace?</Label>
                 <YesNoToggle
                   name="employeesFeelMotivated"
                   value={employeesFeelMotivated}
@@ -972,7 +972,7 @@ const NewVisit = () => {
               </div>
 
                   <div className="flex items-center justify-between gap-4">
-                    <Label className="flex-1">Do leaders use abusive and rude language in meetings or on the floor or in person?</Label>
+                    <Label className="text-xs md:text-sm flex-1">Do leaders use abusive and rude language in meetings or on the floor or in person?</Label>
                 <YesNoToggle
                   name="leadersAbusiveLanguage"
                   value={leadersAbusiveLanguage}
@@ -982,7 +982,7 @@ const NewVisit = () => {
               </div>
 
                   <div className="flex items-center justify-between gap-4">
-                    <Label className="flex-1">Do employees feel comfortable to escalate or raise malpractice or ethically wrong things?</Label>
+                    <Label className="text-xs md:text-sm flex-1">Do employees feel comfortable to escalate or raise malpractice or ethically wrong things?</Label>
                 <YesNoToggle
                   name="employeesComfortEscalation"
                   value={employeesComfortEscalation}
@@ -991,7 +991,7 @@ const NewVisit = () => {
               </div>
 
                   <div className="flex items-center justify-between gap-4">
-                    <Label className="flex-1">Do employees feel workplace culture is inclusive with respect to caste, gender & religion?</Label>
+                    <Label className="text-xs md:text-sm flex-1">Do employees feel workplace culture is inclusive with respect to caste, gender & religion?</Label>
                 <YesNoToggle
                   name="inclusiveCulture"
                   value={inclusiveCulture}
@@ -1003,7 +1003,7 @@ const NewVisit = () => {
 
               {/* Additional Remarks */}
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Additional Remarks</h2>
+                <h2 className="text-base md:text-xl font-semibold">Additional Remarks</h2>
                 <FormField
                   control={form.control}
                   name="feedback"

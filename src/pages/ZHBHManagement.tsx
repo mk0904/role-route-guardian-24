@@ -71,7 +71,7 @@ const ZHBHManagement = () => {
   return (
     <div className="px-6 py-8 md:px-8 lg:px-10 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1">BH Management</h1>
+        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1 md:mb-1">BH Management</h1>
         <p className="text-slate-600">
           View and manage Branch Head Representatives in your zone
         </p>

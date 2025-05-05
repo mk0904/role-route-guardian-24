@@ -211,11 +211,11 @@ const MyVisits = () => {
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">My Branch Visits</h1>
+          <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">My Branch Visits</h1>
           <p className="text-slate-600 mt-1">View and manage your branch visit records</p>
         </div>
         <Button 
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white rounded-full px-6"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 shadow"
           onClick={() => window.location.href = "/bh/new-visit"}
         >
           <Plus className="h-4 w-4" />

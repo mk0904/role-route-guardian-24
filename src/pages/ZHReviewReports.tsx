@@ -415,7 +415,7 @@ const ZHReviewReports = () => {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1">Review Branch Visit Reports</h1>
+        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1 md:mb-1">Review Branch Visit Reports</h1>
           <p className="text-slate-600">Manage and review branch visit reports submitted by BHs</p>
         </div>
       </div>

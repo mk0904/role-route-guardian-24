@@ -107,7 +107,7 @@ const ZHDashboard = () => {
 
   return (
     <div className="px-6 py-8 md:px-8 lg:px-10 max-w-7xl mx-auto">
-      <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-6 md:mb-8">
+      <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1 md:mb-1">
         Zonal Head Dashboard
       </h1>
       
@@ -135,10 +135,10 @@ const ZHDashboard = () => {
                     {dashboardStats.totalBranches}
                   </span>
                   <div className="flex items-center gap-1.5 md:gap-2 mt-1">
-                    <span className="text-xs md:text-sm text-slate-600">
+                    <span className="text-[10px] md:text-xs text-slate-600">
                       {dashboardStats.visitedBranches} visited
                     </span>
-                    <span className="text-[10px] md:text-xs bg-blue-100 text-blue-700 px-1.5 md:px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-[8px] md:text-[10px] bg-blue-100 text-blue-700 px-1 md:px-1.5 py-0.5 rounded-full font-medium">
                       this month
                     </span>
                   </div>
@@ -166,10 +166,10 @@ const ZHDashboard = () => {
                     {dashboardStats.activeBHs}
                   </span>
                   <div className="flex items-center gap-1.5 md:gap-2 mt-1">
-                    <span className="text-xs md:text-sm text-slate-600">
-                      out of {dashboardStats.totalBHs} total
+                    <span className="text-[10px] md:text-xs text-slate-600">
+                      out of {dashboardStats.totalBHRs} total
                     </span>
-                    <span className="text-[10px] md:text-xs bg-emerald-100 text-emerald-700 px-1.5 md:px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-[8px] md:text-[10px] bg-emerald-100 text-emerald-700 px-1 md:px-1.5 py-0.5 rounded-full font-medium">
                       this month
                     </span>
                   </div>
@@ -192,24 +192,17 @@ const ZHDashboard = () => {
                     <ClipboardList className="h-4 w-4 md:h-5 md:w-5 text-violet-600" />
                   </div>
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col mt-auto md:mt-0">
                   <span className="text-2xl md:text-3xl font-bold text-violet-700">
                     {dashboardStats.totalVisits}
                   </span>
                   <div className="flex items-center gap-1.5 md:gap-2 mt-1">
-                    <span className="text-xs md:text-sm text-slate-600">
-                      visits completed
+                    <span className="text-[10px] md:text-xs text-slate-600">
+                      visited
                     </span>
-                    <span className="text-[10px] md:text-xs bg-violet-100 text-violet-700 px-1.5 md:px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-[8px] md:text-[10px] bg-violet-100 text-violet-700 px-1 md:px-1.5 py-0.5 rounded-full font-medium">
                       this month
                     </span>
-                  </div>
-                  <div className="mt-2 md:mt-3">
-                    <Progress 
-                      value={dashboardStats.participationRate} 
-                      className="h-1.5 md:h-2 bg-violet-100" 
-                      indicatorClassName="bg-violet-600"
-                    />
                   </div>
                 </div>
               </CardContent>
@@ -227,7 +220,7 @@ const ZHDashboard = () => {
                   <span className="text-2xl md:text-3xl font-bold text-amber-700">
                     {dashboardStats.submittedApproval}
                   </span>
-                  <span className="text-xs md:text-sm text-slate-600 mt-1">
+                  <span className="text-[10px] md:text-xs text-slate-600 mt-1">
                     reports awaiting review
                   </span>
                   <Button 
