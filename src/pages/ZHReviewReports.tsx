@@ -128,7 +128,7 @@ const ReportDetailsModal = ({ reportId, open, onClose, onStatusUpdate, onDeleteR
                 <p className="text-lg font-medium">{formatDate(report.visit_date)}</p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500">BHR Name</h3>
+                <h3 className="text-sm font-medium text-gray-500">BH Name</h3>
                 <p className="text-lg font-medium">{report.bh_name}</p>
               </div>
               <div>
@@ -416,7 +416,7 @@ const ZHReviewReports = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1">Review Branch Visit Reports</h1>
-          <p className="text-slate-600">Manage and review branch visit reports submitted by BHRs</p>
+          <p className="text-slate-600">Manage and review branch visit reports submitted by BHs</p>
         </div>
       </div>
 
@@ -426,7 +426,7 @@ const ZHReviewReports = () => {
             <div className="relative w-full md:w-1/2 md:max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
               <Input
-                placeholder="Search by branch name, location or BHR name..."
+                placeholder="Search by branch name, location or BH name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -483,7 +483,7 @@ const ZHReviewReports = () => {
                 <TableRow>
                   <TableHead className="font-medium">Branch</TableHead>
                   <TableHead className="font-medium">Location</TableHead>
-                  <TableHead className="font-medium">BHR Name</TableHead>
+                  <TableHead className="font-medium">BH Name</TableHead>
                   <TableHead className="font-medium">Visit Date</TableHead>
                   <TableHead className="font-medium">Status</TableHead>
                   <TableHead className="text-right">Action</TableHead>

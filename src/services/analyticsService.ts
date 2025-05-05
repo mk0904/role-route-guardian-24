@@ -24,7 +24,7 @@ interface MonthlyTrend {
   nonVendorPercentage: number;
 }
 
-interface BHRStats {
+interface BHStats {
   id: string;
   name: string;
   code: string;
@@ -170,13 +170,13 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     const totalBranches = branches?.length || 0;
     console.info(`Total branches: ${totalBranches}`);
     
-    // Get unique BHRs who submitted reports
-    const { data: bhrs, error: bhrsError } = await supabase
+    // Get unique BHs who submitted reports
+    const { data: bhs, error: bhsError } = await supabase
       .from('branch_visits')
       .select('user_id', { count: 'exact', head: true })
       .in('status', ['submitted', 'approved']);
     
-    if (bhrsError) throw bhrsError;
+    if (bhsError) throw bhsError;
     
     // Get visited branches (unique branch_id in approved visits for current month)
     const currentDate = new Date();
@@ -226,7 +226,7 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     console.info("Unique branch IDs:", Array.from(uniqueBranchIds));
     console.info("Visited branches count:", visitedBranchesCount);
     
-    // Calculate unique BHR IDs
+    // Calculate unique BH IDs
     const uniqueBhrIds = new Set(visits.filter(visit => visit.status === 'approved').map(visit => visit.user_id)).size;
     
     // Calculate metrics
@@ -550,7 +550,7 @@ function getTimePeriods(timeRange: string, startDate: Date, endDate: Date): Time
 
 export const fetchTopPerformers = async (): Promise<TopPerformer[]> => {
   try {
-    // Get BHRs with their visit counts and ratings
+    // Get BHs with their visit counts and ratings
     const { data: visits, error: visitsError } = await supabase
       .from('branch_visits')
       .select(`
@@ -573,14 +573,14 @@ export const fetchTopPerformers = async (): Promise<TopPerformer[]> => {
     if (visitsError) throw visitsError;
     if (!visits || visits.length === 0) return [];
     
-    // Group visits by BHR
-    const bhrStats: Record<string, BHRStats> = {};
+    // Group visits by BH
+    const bhStats: Record<string, BHStats> = {};
     
     visits.forEach(visit => {
-      const bhrId = visit.user_id;
-      if (!bhrStats[bhrId]) {
-        bhrStats[bhrId] = {
-          id: bhrId,
+      const bhId = visit.user_id;
+      if (!bhStats[bhId]) {
+        bhStats[bhId] = {
+          id: bhId,
           name: visit.profiles?.full_name || 'N/A',
           code: visit.profiles?.e_code || 'N/A',
           visitCount: 0,
@@ -595,39 +595,39 @@ export const fetchTopPerformers = async (): Promise<TopPerformer[]> => {
         };
       }
       
-      bhrStats[bhrId].visitCount++;
+      bhStats[bhId].visitCount++;
       
       // Add ratings if they exist
       if (visit.leaders_aligned_with_code) {
-        bhrStats[bhrId].ratings.leaders_aligned.push(getRatingValue(visit.leaders_aligned_with_code));
+        bhStats[bhId].ratings.leaders_aligned.push(getRatingValue(visit.leaders_aligned_with_code));
       }
       if (visit.employees_feel_safe) {
-        bhrStats[bhrId].ratings.employees_safe.push(getRatingValue(visit.employees_feel_safe));
+        bhStats[bhId].ratings.employees_safe.push(getRatingValue(visit.employees_feel_safe));
       }
       if (visit.employees_feel_motivated) {
-        bhrStats[bhrId].ratings.employees_motivated.push(getRatingValue(visit.employees_feel_motivated));
+        bhStats[bhId].ratings.employees_motivated.push(getRatingValue(visit.employees_feel_motivated));
       }
       if (visit.leaders_abusive_language) {
-        bhrStats[bhrId].ratings.no_abusive_language.push(getRatingValue(visit.leaders_abusive_language));
+        bhStats[bhId].ratings.no_abusive_language.push(getRatingValue(visit.leaders_abusive_language));
       }
       if (visit.employees_comfort_escalation) {
-        bhrStats[bhrId].ratings.comfort_escalation.push(getRatingValue(visit.employees_comfort_escalation));
+        bhStats[bhId].ratings.comfort_escalation.push(getRatingValue(visit.employees_comfort_escalation));
       }
       if (visit.inclusive_culture) {
-        bhrStats[bhrId].ratings.inclusive_culture.push(getRatingValue(visit.inclusive_culture));
+        bhStats[bhId].ratings.inclusive_culture.push(getRatingValue(visit.inclusive_culture));
       }
     });
     
-    // Calculate average ratings and overall score for each BHR
-    const performers = Object.values(bhrStats).map(bhr => {
+    // Calculate average ratings and overall score for each BH
+    const performers = Object.values(bhStats).map(bh => {
       const getAverage = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
       
-      const avgLeadersAligned = getAverage(bhr.ratings.leaders_aligned);
-      const avgEmployeesSafe = getAverage(bhr.ratings.employees_safe);
-      const avgEmployeesMotivated = getAverage(bhr.ratings.employees_motivated);
-      const avgNoAbusiveLanguage = getAverage(bhr.ratings.no_abusive_language);
-      const avgComfortEscalation = getAverage(bhr.ratings.comfort_escalation);
-      const avgInclusiveCulture = getAverage(bhr.ratings.inclusive_culture);
+      const avgLeadersAligned = getAverage(bh.ratings.leaders_aligned);
+      const avgEmployeesSafe = getAverage(bh.ratings.employees_safe);
+      const avgEmployeesMotivated = getAverage(bh.ratings.employees_motivated);
+      const avgNoAbusiveLanguage = getAverage(bh.ratings.no_abusive_language);
+      const avgComfortEscalation = getAverage(bh.ratings.comfort_escalation);
+      const avgInclusiveCulture = getAverage(bh.ratings.inclusive_culture);
       
       // Calculate overall score (average of all ratings)
       const overallScore = (
@@ -640,9 +640,9 @@ export const fetchTopPerformers = async (): Promise<TopPerformer[]> => {
       ) / 6;
       
       return {
-        name: bhr.name,
-        code: bhr.code,
-        visitCount: bhr.visitCount,
+        name: bh.name,
+        code: bh.code,
+        visitCount: bh.visitCount,
         overallScore: Math.round(overallScore * 100) / 100
       };
     });

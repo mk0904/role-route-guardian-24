@@ -36,9 +36,9 @@ import { Search, Plus, X, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { 
   fetchBranches, 
-  fetchBHRs, 
-  assignBranchToBHR, 
-  unassignBranchFromBHR, 
+  fetchBHs, 
+  assignBranchToBH, 
+  unassignBranchFromBH, 
   fetchBranchAssignments 
 } from "@/services/zhService";
 import { toast } from "@/components/ui/use-toast";
@@ -103,7 +103,7 @@ const ZHBranchMapping = () => {
         // Fetch branches and BH users in parallel
         const [branchesData, bhUsersData, allAssignmentsData] = await Promise.all([
           fetchBranches(user.id),
-          fetchBHRs(user.id),
+          fetchBHs(user.id),
           fetchBranchAssignments()
         ]);
         
@@ -134,7 +134,7 @@ const ZHBranchMapping = () => {
         toast({
           variant: "destructive",
           title: "Error loading data",
-          description: "Failed to load branch and BHR data. Please try again."
+          description: "Failed to load branch and BH data. Please try again."
         });
       } finally {
         setIsLoading(false);
@@ -181,14 +181,14 @@ const ZHBranchMapping = () => {
     setDialogOpen(true);
   };
   
-  const handleUnassignBHR = async () => {
+  const handleUnassignBH = async () => {
     if (!selectedBranchForUnassign) return;
     
     const { branchId, bhUserId, branchName, bhName } = selectedBranchForUnassign;
     
     try {
       // First perform the database operation
-      const result = await unassignBranchFromBHR(bhUserId, branchId);
+      const result = await unassignBranchFromBH(bhUserId, branchId);
       
       if (result) {
         // Update the assignments in state
@@ -234,16 +234,16 @@ const ZHBranchMapping = () => {
         );
         
         toast({
-          title: "BHR Unassigned",
+          title: "BH Unassigned",
           description: `${bhName} has been unassigned from ${branchName}.`,
         });
       }
     } catch (error) {
-      console.error("Error unassigning BHR from branch:", error);
+      console.error("Error unassigning BH from branch:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to unassign BHR from branch.",
+        description: "Failed to unassign BH from branch.",
       });
     }
   };
@@ -251,10 +251,10 @@ const ZHBranchMapping = () => {
   const handleConfirmDialog = async () => {
     try {
       if (dialogType === "assign" && selectedBranch && selectedBHUser) {
-        const result = await assignBranchToBHR(selectedBHUser, selectedBranch.id);
+        const result = await assignBranchToBH(selectedBHUser, selectedBranch.id);
         
         if (result) {
-          // Find the BHR name from the result or from the BHUsers list
+          // Find the BH name from the result or from the BHUsers list
           const bhUser = bhUsers.find(user => user.id === selectedBHUser);
           const bhName = result.bh_name || bhUser?.full_name || 'Unknown';
           
@@ -300,7 +300,7 @@ const ZHBranchMapping = () => {
           );
         }
       } else if (dialogType === "unassign" && selectedBranchForUnassign) {
-        await handleUnassignBHR();
+        await handleUnassignBH();
       }
     } catch (error) {
       console.error("Error during branch assignment operation:", error);
@@ -352,7 +352,7 @@ const ZHBranchMapping = () => {
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent mb-1">Branch Mapping</h1>
-        <p className="text-slate-600">Assign branches to Branch Head Representatives (BHRs)</p>
+        <p className="text-slate-600">Assign branches to Branch Head Representatives (BHs)</p>
       </div>
       
       <Card className="mb-6 hover:shadow-md transition-shadow">
@@ -391,7 +391,7 @@ const ZHBranchMapping = () => {
                   <TableHead className="w-[200px]">Branch Name</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Assigned BHRs</TableHead>
+                  <TableHead>Assigned BHs</TableHead>
                   <TableHead className="text-right w-[100px] sticky right-0 bg-white z-10">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -432,7 +432,7 @@ const ZHBranchMapping = () => {
                               </Badge>
                             ))
                           ) : (
-                            <span className="text-slate-500 text-sm">No BHRs assigned</span>
+                            <span className="text-slate-500 text-sm">No BHs assigned</span>
                           )}
                         </div>
                       </TableCell>
@@ -472,14 +472,14 @@ const ZHBranchMapping = () => {
           {dialogType === "assign" ? (
             <>
                 <DialogHeader>
-                  <DialogTitle>Assign Branch to BHR</DialogTitle>
+                  <DialogTitle>Assign Branch to BH</DialogTitle>
                   <DialogDescription>
-                  Select a BHR to assign to {selectedBranch?.name}
+                  Select a BH to assign to {selectedBranch?.name}
                   </DialogDescription>
                 </DialogHeader>
                 <Select value={selectedBHUser || ""} onValueChange={setSelectedBHUser}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a BHR" />
+                    <SelectValue placeholder="Select a BH" />
                   </SelectTrigger>
                   <SelectContent>
                     {bhUsers.map((bhUser) => (

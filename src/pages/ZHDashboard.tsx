@@ -24,8 +24,8 @@ const ZHDashboard = () => {
   const navigate = useNavigate();
   const [dashboardStats, setDashboardStats] = useState<any>({
     totalBranches: 0,
-    totalBHRs: 0,
-    activeBHRs: 0,
+    totalBHs: 0,
+    activeBHs: 0,
     visitedBranches: 0,
     coverage: 0,
     totalVisits: 0,
@@ -156,18 +156,18 @@ const ZHDashboard = () => {
             <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 border-0 shadow-md hover:shadow-lg transition-all">
               <CardContent className="p-4 md:p-6">
                 <div className="flex items-center justify-between mb-3 md:mb-4">
-                  <h3 className="text-base md:text-lg font-semibold text-emerald-900">Active BHRs</h3>
+                  <h3 className="text-base md:text-lg font-semibold text-emerald-900">Active BHs</h3>
                   <div className="p-1.5 md:p-2 bg-emerald-100 rounded-lg">
                     <Users className="h-4 w-4 md:h-5 md:w-5 text-emerald-600" />
                   </div>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-2xl md:text-3xl font-bold text-emerald-700">
-                    {dashboardStats.activeBHRs}
+                    {dashboardStats.activeBHs}
                   </span>
                   <div className="flex items-center gap-1.5 md:gap-2 mt-1">
                     <span className="text-xs md:text-sm text-slate-600">
-                      out of {dashboardStats.totalBHRs} total
+                      out of {dashboardStats.totalBHs} total
                     </span>
                     <span className="text-[10px] md:text-xs bg-emerald-100 text-emerald-700 px-1.5 md:px-2 py-0.5 rounded-full font-medium">
                       this month
@@ -175,7 +175,7 @@ const ZHDashboard = () => {
                   </div>
                   <div className="mt-2 md:mt-3">
                     <Progress 
-                      value={(dashboardStats.activeBHRs / dashboardStats.totalBHRs) * 100} 
+                      value={(dashboardStats.activeBHs / dashboardStats.totalBHs) * 100} 
                       className="h-1.5 md:h-2 bg-emerald-100" 
                       indicatorClassName="bg-emerald-600"
                     />
@@ -259,7 +259,7 @@ const ZHDashboard = () => {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left border-b">
-                        <th className="pb-3 font-medium text-slate-700">BHR</th>
+                        <th className="pb-3 font-medium text-slate-700">BH</th>
                         <th className="pb-3 font-medium text-slate-700">Branch</th>
                         <th className="pb-3 font-medium text-slate-700">Visit Date</th>
                         <th className="pb-3 font-medium text-slate-700">Status</th>
